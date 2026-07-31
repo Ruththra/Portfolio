@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { siteConfig } from "@/config/site";
 import { SwiftGlowingCursor } from "@/components/animations/swift-glowing-cursor";
 
-const heading = Space_Grotesk({
+const display = Sora({
   subsets: ["latin"],
-  variable: "--font-heading",
+  variable: "--font-display",
+  display: "swap",
 });
-const body = Inter({ subsets: ["latin"], variable: "--font-body" });
+const body = Manrope({
+  subsets: ["latin"],
+  variable: "--font-body",
+  display: "swap",
+});
+const mono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: siteConfig.siteUrl ? new URL(siteConfig.siteUrl) : undefined,
@@ -51,7 +61,10 @@ export default function RootLayout({
     ],
   };
   return (
-    <html lang="en" className={`${heading.variable} ${body.variable}`}>
+    <html
+      lang="en"
+      className={`${display.variable} ${body.variable} ${mono.variable}`}
+    >
       <body>
         <SwiftGlowingCursor />
         <a href="#main-content" className="skip-link">
