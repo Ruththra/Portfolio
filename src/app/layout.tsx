@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { siteConfig } from "@/config/site";
+import { SwiftGlowingCursor } from "@/components/animations/swift-glowing-cursor";
 
 const heading = Space_Grotesk({
   subsets: ["latin"],
@@ -52,6 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${heading.variable} ${body.variable}`}>
       <body>
+        <SwiftGlowingCursor />
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>

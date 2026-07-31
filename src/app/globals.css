@@ -53,6 +53,118 @@ a {
   outline: 2px solid var(--cyan);
   outline-offset: 4px;
 }
+
+/* Swift glowing cursor */
+.swift-cursor {
+  --cursor-x: -100px;
+  --cursor-y: -100px;
+  --cursor-rotation: 0deg;
+  --cursor-scale: 1;
+  --cursor-speed: 0;
+  --cursor-streak-opacity: 0;
+  --cursor-streak-length: 10px;
+  position: fixed;
+  z-index: 2147483647;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  transform: translate3d(var(--cursor-x), var(--cursor-y), 0);
+  transition: opacity 120ms ease;
+  will-change: transform;
+}
+.swift-cursor[data-visible="true"] {
+  opacity: 1;
+}
+.swift-cursor__visual {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  transform: translate(-32.2%, -18.5%) rotate(var(--cursor-rotation))
+    scale(var(--cursor-scale));
+  transform-origin: 32.2% 18.5%;
+  will-change: transform, filter;
+}
+.swift-cursor__image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 3px rgba(170, 250, 255, 1))
+    drop-shadow(0 0 8px rgba(35, 210, 255, 0.95))
+    drop-shadow(0 0 18px rgba(0, 120, 255, 0.75));
+}
+.swift-cursor__streak {
+  position: absolute;
+  z-index: 0;
+  top: 21%;
+  left: 27%;
+  width: var(--cursor-streak-length);
+  height: 7px;
+  border-radius: 999px;
+  opacity: var(--cursor-streak-opacity);
+  background: linear-gradient(90deg, transparent, rgba(53, 212, 255, 0.72));
+  filter: blur(4px);
+  transform: translateX(-100%) rotate(-28deg);
+  transform-origin: right center;
+}
+.swift-cursor[data-hovering="true"] .swift-cursor__image {
+  filter: drop-shadow(0 0 4px rgba(205, 255, 255, 1))
+    drop-shadow(0 0 11px rgba(53, 212, 255, 1))
+    drop-shadow(0 0 22px rgba(0, 120, 255, 0.9));
+  animation: swift-cursor-pulse 900ms ease-in-out infinite alternate;
+}
+.swift-cursor[data-pressed="true"] .swift-cursor__image {
+  filter: brightness(1.35) drop-shadow(0 0 5px rgba(205, 255, 255, 1))
+    drop-shadow(0 0 13px rgba(53, 212, 255, 1));
+}
+.swift-cursor[data-released="true"] .swift-cursor__image {
+  animation: swift-cursor-release 180ms ease-out;
+}
+@keyframes swift-cursor-pulse {
+  to {
+    filter: brightness(1.12) drop-shadow(0 0 5px rgba(205, 255, 255, 1))
+      drop-shadow(0 0 13px rgba(53, 212, 255, 1))
+      drop-shadow(0 0 25px rgba(0, 120, 255, 0.95));
+  }
+}
+@keyframes swift-cursor-release {
+  50% {
+    filter: brightness(1.25) drop-shadow(0 0 14px rgba(53, 212, 255, 1));
+  }
+}
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  html.custom-cursor-enabled,
+  html.custom-cursor-enabled body,
+  html.custom-cursor-enabled a,
+  html.custom-cursor-enabled button,
+  html.custom-cursor-enabled [role="button"],
+  html.custom-cursor-enabled input[type="button"],
+  html.custom-cursor-enabled input[type="submit"],
+  html.custom-cursor-enabled input[type="checkbox"],
+  html.custom-cursor-enabled input[type="radio"],
+  html.custom-cursor-enabled [data-cursor-hover] {
+    cursor: none;
+  }
+  html.custom-cursor-enabled
+    input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not(
+      [type="radio"]
+    ),
+  html.custom-cursor-enabled textarea,
+  html.custom-cursor-enabled [contenteditable="true"] {
+    cursor: text;
+  }
+}
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .swift-cursor {
+    display: none;
+  }
+}
 h1,
 h2,
 h3 {
