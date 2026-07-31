@@ -1,12 +1,6 @@
-# Avatar assets
+# Hero avatar assets
 
-The portfolio works without personal media and shows an abstract SVG silhouette. To enable layered personal visuals, add:
+- `portrait-original.webp` is the optimized, transparency-preserving source portrait shown on initial load, mobile, and reduced-motion layouts.
+- `avatar-transformation.webm` is the audio-free VP9 transformation scrubbed by the desktop hero ScrollTrigger.
 
-- `portrait-real.webp`
-- `avatar-cartoon-no-hood.webp`
-- `avatar-cartoon-hood.webp`
-- `avatar-blink.webp`
-- `avatar-transition.webm` (optional)
-- `hoodie-transition.webm` (optional)
-
-Use consistent 4:5 artwork, ideally 1600 × 2000 px. WebP images should share alignment and use transparency where possible; videos should be short, muted, loop-safe WebM files with matching framing. Update `AvatarScene` to render the supplied layers with `next/image`; never commit a substitute person’s portrait.
+The original supplied files remain in `portfolio stocks/`. Keep the production filenames stable because `AvatarSequence` references them directly.

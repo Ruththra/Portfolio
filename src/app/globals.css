@@ -570,15 +570,37 @@ h3 {
     inset 0 0 80px rgba(35, 139, 255, 0.1),
     0 30px 80px rgba(0, 0, 0, 0.35);
 }
-.avatar-core {
+.avatar-media {
   position: absolute;
   z-index: 3;
-  width: 82%;
-  height: 86%;
-  bottom: 0;
-  left: 9%;
-  filter: drop-shadow(0 0 18px rgba(35, 139, 255, 0.4));
-  transform-origin: bottom;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.avatar-portrait {
+  background: #07101f;
+}
+.avatar-media-content {
+  object-fit: cover;
+  object-position: center;
+}
+.avatar-video {
+  visibility: hidden;
+  opacity: 0;
+}
+.avatar-loading {
+  position: absolute;
+  z-index: 7;
+  right: 1rem;
+  bottom: 1rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 2rem;
+  background: rgba(5, 13, 28, 0.72);
+  color: var(--secondary);
+  font:
+    500 0.68rem var(--font-mono),
+    ui-monospace,
+    monospace;
 }
 .nebula {
   position: absolute;
@@ -1409,6 +1431,17 @@ h3 {
     gap: 2rem;
   }
 }
+@media (max-width: 1023px) {
+  .hero {
+    min-height: auto;
+    grid-template-columns: 1fr;
+  }
+  .avatar-stage {
+    grid-row: 2;
+    width: min(100%, 620px);
+    margin-inline: auto;
+  }
+}
 @media (max-width: 767px) {
   .navbar {
     padding: 0.7rem 1rem;
@@ -1573,6 +1606,10 @@ h3 {
   }
   .avatar-stage {
     transform: none !important;
+  }
+  .avatar-video,
+  .sweep {
+    display: none !important;
   }
   .skills-section .skills-reveal {
     opacity: 1 !important;
