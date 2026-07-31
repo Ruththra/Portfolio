@@ -1,6 +1,7 @@
 # Ruththra Portfolio
 
-portfolio-mjcuhw91d-ruththras-projects.vercel.app
+https://portfolio-nu-silk-13.vercel.app/
+
 
 A production-focused personal portfolio for Ruththiragayan Sutharsan: a responsive, accessible Next.js experience with a celestial visual system, data-driven content, restrained GSAP motion, and a validated contact pipeline.
 
