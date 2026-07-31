@@ -35,3 +35,22 @@ test("reduced motion does not pin hero", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".pin-spacer")).toHaveCount(0);
 });
+
+test("desktop hero stays pinned for the avatar sequence", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+
+  const hero = page.locator(".hero");
+  const skills = page.locator("#skills");
+
+  await expect(page.locator(".pin-spacer")).toHaveCount(1);
+  await page.evaluate(() => window.scrollTo(0, 1400));
+  await expect(hero).toBeInViewport();
+  await expect(skills).not.toBeInViewport();
+
+  await page.evaluate(() => window.scrollTo(0, 3200));
+  await expect(skills).toBeInViewport();
+
+  await page.evaluate(() => window.scrollTo(0, 800));
+  await expect(hero).toBeInViewport();
+});

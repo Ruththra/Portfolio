@@ -1,61 +1,7 @@
-"use client";
-
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-gsap.registerPlugin(useGSAP, ScrollTrigger);
-
-export function AvatarScene() {
-  const root = useRef<HTMLDivElement>(null);
-  useGSAP(
-    () => {
-      const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-      const mobile = matchMedia("(max-width: 767px)").matches;
-      if (reduced) return;
-      gsap.to(".avatar-core", {
-        y: -8,
-        duration: 2.8,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-      });
-      if (!mobile) {
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: root.current,
-            start: "top 24%",
-            end: "+=650",
-            scrub: 1,
-            pin: true,
-            invalidateOnRefresh: true,
-          },
-        });
-        timeline
-          .to(".orbit-one", { rotate: 55, scale: 1.08 }, 0)
-          .to(".orbit-two", { rotate: -40 }, 0)
-          .to(
-            ".avatar-core",
-            { scale: 1.04, filter: "drop-shadow(0 0 28px #238bff)" },
-            0.25,
-          )
-          .to(".sweep", { xPercent: 230, opacity: 0.8 }, 0.3)
-          .to(".hood", { opacity: 1, scale: 1 }, 0.65)
-          .to(
-            ".eye",
-            { scaleY: 0.08, duration: 0.05, yoyo: true, repeat: 1 },
-            0.82,
-          );
-      }
-    },
-    { scope: root },
-  );
-
+export function AvatarSequence() {
   return (
     <div
       className="avatar-stage"
-      ref={root}
       aria-label="Abstract celestial avatar placeholder; personal portrait assets can be added later"
       role="img"
     >

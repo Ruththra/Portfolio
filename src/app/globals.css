@@ -34,7 +34,7 @@ body {
   color: var(--text);
   font-family: var(--font-body), sans-serif;
   line-height: 1.65;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 a {
   color: inherit;
@@ -175,6 +175,9 @@ h3 {
   place-items: center;
   background: var(--glass);
   color: var(--text);
+}
+.hero-track {
+  position: relative;
 }
 .hero {
   position: relative;
@@ -948,6 +951,11 @@ h3 {
   }
   .mobile-menu a:hover {
     background: rgba(35, 139, 255, 0.12);
+  }
+}
+@media (min-width: 1024px) {
+  .hero {
+    width: min(100%, var(--max));
   }
 }
 @media (max-width: 420px) {
