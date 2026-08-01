@@ -18,7 +18,6 @@ import { AvatarSequence } from "@/components/animations/avatar-scene";
 
 export function Hero() {
   const heroTrackRef = useRef<HTMLElement>(null);
-  const heroStageRef = useRef<HTMLDivElement>(null);
 
   const socials = [
     ["Email", siteConfig.email ? `mailto:${siteConfig.email}` : "", Mail],
@@ -28,7 +27,7 @@ export function Hero() {
   ] as const;
   return (
     <section ref={heroTrackRef} id="home" className="hero-track">
-      <div ref={heroStageRef} className="hero">
+      <div className="hero">
         <div className="hero-copy">
           <p className="status">
             <span />
@@ -83,10 +82,7 @@ export function Hero() {
             Based in Sri Lanka · Open to remote opportunities
           </p>
         </div>
-        <AvatarSequence
-          heroTrackRef={heroTrackRef}
-          heroStageRef={heroStageRef}
-        />
+        <AvatarSequence heroTrackRef={heroTrackRef} />
         <a className="scroll-cue" href="#skills">
           <Mouse aria-hidden="true" />
           Scroll to explore

@@ -570,6 +570,16 @@ h3 {
     inset 0 0 80px rgba(35, 139, 255, 0.1),
     0 30px 80px rgba(0, 0, 0, 0.35);
 }
+@media (min-width: 1200px) {
+  .avatar-stage {
+    justify-self: end;
+    width: min(100%, 340px);
+    max-height: min(425px, calc(100svh - 11rem));
+  }
+  #main-content > .section {
+    padding-right: calc(340px + 4rem);
+  }
+}
 .avatar-media {
   position: absolute;
   z-index: 3;

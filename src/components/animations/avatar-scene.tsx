@@ -9,14 +9,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 type AvatarSequenceProps = {
-  heroStageRef: RefObject<HTMLDivElement | null>;
   heroTrackRef: RefObject<HTMLElement | null>;
 };
 
 const VIDEO_SRC = "/media/avatar/avatar-transformation.webm";
 
 export function AvatarSequence({
-  heroStageRef,
   heroTrackRef,
 }: AvatarSequenceProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -29,9 +27,8 @@ export function AvatarSequence({
     const portrait = portraitRef.current;
     const video = videoRef.current;
     const track = heroTrackRef.current;
-    const stage = heroStageRef.current;
 
-    if (!root || !portrait || !video || !track || !stage) return;
+    if (!root || !portrait || !video || !track) return;
 
     video.pause();
     video.currentTime = 0;
@@ -47,7 +44,7 @@ export function AvatarSequence({
     const media = gsap.matchMedia();
     media.add(
       {
-        desktop: "(min-width: 1024px)",
+        desktop: "(min-width: 1200px)",
         reduceMotion: "(prefers-reduced-motion: reduce)",
       },
       (context) => {
@@ -81,9 +78,10 @@ export function AvatarSequence({
               id: "hero-avatar-video",
               trigger: track,
               start: "top top",
-              end: () => `+=${Math.max(window.innerHeight * 3, 2600)}`,
-              pin: stage,
-              pinSpacing: true,
+              endTrigger: document.body,
+              end: "bottom bottom",
+              pin: root,
+              pinSpacing: false,
               scrub: 0.6,
               anticipatePin: 1,
               invalidateOnRefresh: true,
@@ -123,7 +121,10 @@ export function AvatarSequence({
                     Math.max(state.time, 0),
                     Math.max(video.duration - 0.01, 0),
                   );
-                  if (Math.abs(video.currentTime - safeTime) > 0.015) {
+                  if (
+                    !video.seeking &&
+                    Math.abs(video.currentTime - safeTime) > 1 / 24
+                  ) {
                     video.currentTime = safeTime;
                   }
                 },
@@ -171,7 +172,7 @@ export function AvatarSequence({
       media.revert();
       video.pause();
     };
-  }, [heroStageRef, heroTrackRef]);
+  }, [heroTrackRef]);
 
   return (
     <div ref={rootRef} className="avatar-stage">
@@ -187,7 +188,7 @@ export function AvatarSequence({
           alt="Portrait of Ruththiragayan Sutharsan"
           fill
           priority
-          sizes="(min-width: 1024px) 42vw, 90vw"
+          sizes="(min-width: 1200px) 340px, (min-width: 1024px) 42vw, 90vw"
           className="avatar-media-content"
         />
       </div>

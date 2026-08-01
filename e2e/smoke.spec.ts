@@ -20,6 +20,7 @@ test("archive routes work", async ({ page }) => {
 test("mobile menu and invalid contact", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
   await page.getByRole("button", { name: /open navigation/i }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
@@ -36,21 +37,42 @@ test("reduced motion does not pin hero", async ({ page }) => {
   await expect(page.locator(".pin-spacer")).toHaveCount(0);
 });
 
-test("desktop hero stays pinned for the avatar sequence", async ({ page }) => {
+test("desktop avatar stays pinned through the page", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  await page.waitForFunction(
+    () =>
+      document.querySelector<HTMLVideoElement>(".avatar-video")?.readyState !==
+      HTMLMediaElement.HAVE_NOTHING,
+  );
 
-  const hero = page.locator(".hero");
+  const avatar = page.locator(".avatar-stage");
   const skills = page.locator("#skills");
 
   await expect(page.locator(".pin-spacer")).toHaveCount(1);
   await page.evaluate(() => window.scrollTo(0, 1400));
-  await expect(hero).toBeInViewport();
-  await expect(skills).not.toBeInViewport();
-
-  await page.evaluate(() => window.scrollTo(0, 3200));
+  await expect(avatar).toBeInViewport();
   await expect(skills).toBeInViewport();
 
-  await page.evaluate(() => window.scrollTo(0, 800));
-  await expect(hero).toBeInViewport();
+  const avatarBox = await avatar.boundingBox();
+  const skillsContentBox = await page.locator(".technology-panel").boundingBox();
+  expect(avatarBox).not.toBeNull();
+  expect(skillsContentBox).not.toBeNull();
+  expect(skillsContentBox!.x + skillsContentBox!.width).toBeLessThanOrEqual(
+    avatarBox!.x,
+  );
+  expect(avatarBox!.y + avatarBox!.height).toBeLessThan(
+    page.viewportSize()!.height,
+  );
+
+  await page.locator("#contact").scrollIntoViewIfNeeded();
+  await expect(avatar).toBeInViewport();
+  const contactContentBox = await page.locator(".contact-grid").boundingBox();
+  const pinnedAvatarBox = await avatar.boundingBox();
+  expect(contactContentBox).not.toBeNull();
+  expect(pinnedAvatarBox).not.toBeNull();
+  expect(contactContentBox!.x + contactContentBox!.width).toBeLessThanOrEqual(
+    pinnedAvatarBox!.x,
+  );
 });
