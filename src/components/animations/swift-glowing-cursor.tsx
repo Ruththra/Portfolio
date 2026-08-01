@@ -86,13 +86,13 @@ const createFluidTrail = (canvas: HTMLCanvasElement): FluidTrail | null => {
         u_mouse * aspect
       );
       float core = exp(-(distanceToPath * distanceToPath) / 0.0002);
-      float plume = exp(-(distanceToPath * distanceToPath) / 0.00072) * 0.34;
+      float plume = exp(-(distanceToPath * distanceToPath) / 0.00072) * 0.24;
       float dye = (core + plume) * u_splat;
       float colorShift = 0.5 + 0.5 * sin(u_time * 1.7);
       vec3 blue = mix(vec3(0.035, 0.24, 0.95), vec3(0.42, 0.78, 1.0), colorShift);
       vec3 whiteBlue = mix(blue, vec3(0.86, 0.96, 1.0), 0.28);
-      vec3 color = previous.rgb + whiteBlue * dye * 0.38;
-      float alpha = min(previous.a + dye * 0.34, 0.78);
+      vec3 color = previous.rgb + whiteBlue * dye * 0.22;
+      float alpha = min(previous.a + dye * 0.2, 0.52);
       outputColor = vec4(color, alpha);
     }
   `;
