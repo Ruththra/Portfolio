@@ -29,6 +29,45 @@ test("technology library reveals accessible names", async ({ page }) => {
   await python.focus();
   await expect(name).toHaveCSS("opacity", "1");
 });
+test("custom cursor trails movement and hides outside the viewport", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const nativeMatchMedia = window.matchMedia.bind(window);
+    window.matchMedia = (query: string) => {
+      const result = nativeMatchMedia(query);
+      if (query === "(pointer: fine)") {
+        Object.defineProperty(result, "matches", { value: true });
+      }
+      return result;
+    };
+  });
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  const cursor = page.locator(".swift-cursor");
+  await expect(page.locator("html")).toHaveClass(/custom-cursor-enabled/);
+
+  await page.mouse.move(120, 120);
+  await page.mouse.move(260, 220, { steps: 3 });
+  await expect(cursor).toHaveAttribute("data-visible", "true");
+  await expect(cursor).toHaveAttribute("data-trail-active", "true");
+  await expect
+    .poll(() =>
+      cursor.evaluate((element) => ({
+        x: element.style.getPropertyValue("--cursor-x"),
+        y: element.style.getPropertyValue("--cursor-y"),
+      })),
+    )
+    .toEqual({ x: "260px", y: "220px" });
+
+  await page.evaluate(() => {
+    document.documentElement.dispatchEvent(
+      new MouseEvent("mouseout", { bubbles: true, relatedTarget: null }),
+    );
+  });
+  await expect(cursor).toHaveAttribute("data-visible", "false");
+  await expect(cursor).toHaveAttribute("data-trail-active", "false");
+});
 test("mobile menu and invalid contact", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");

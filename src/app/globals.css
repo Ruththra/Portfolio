@@ -61,6 +61,12 @@ a {
 }
 
 /* Swift glowing cursor */
+.swift-cursor-trail {
+  position: fixed;
+  z-index: 2147483646;
+  inset: 0;
+  pointer-events: none;
+}
 .swift-cursor {
   --cursor-x: -100px;
   --cursor-y: -100px;
@@ -118,23 +124,7 @@ a {
   transition: filter 100ms ease;
 }
 .swift-cursor__streak {
-  position: absolute;
-  z-index: 0;
-  top: 18.5%;
-  left: 32.2%;
-  width: var(--cursor-streak-length);
-  height: 5px;
-  border-radius: 999px;
-  opacity: var(--cursor-streak-opacity);
-  background: linear-gradient(
-    90deg,
-    rgba(90, 225, 255, 0.58),
-    rgba(24, 170, 255, 0.12) 65%,
-    rgba(0, 115, 255, 0)
-  );
-  filter: blur(3px);
-  transform: translateY(-50%) rotate(var(--cursor-motion-angle));
-  transform-origin: left center;
+  display: none;
 }
 .swift-cursor__motion-glow {
   position: absolute;
