@@ -585,6 +585,7 @@ h3 {
   object-position: center;
 }
 .avatar-video {
+  object-position: center top;
   visibility: hidden;
   opacity: 0;
 }
