@@ -24,19 +24,289 @@ const EDITABLE_SELECTOR = [
 const clamp = (value: number, minimum: number, maximum: number) =>
   Math.min(Math.max(value, minimum), maximum);
 
-const shortestAngleDifference = (from: number, to: number) =>
-  ((to - from + 540) % 360) - 180;
+type FluidTrail = {
+  move: (x: number, y: number, velocityX: number, velocityY: number) => void;
+  clear: () => void;
+  destroy: () => void;
+};
+
+const createFluidTrail = (canvas: HTMLCanvasElement): FluidTrail | null => {
+  const gl = canvas.getContext("webgl2", {
+    alpha: true,
+    antialias: false,
+    depth: false,
+    premultipliedAlpha: false,
+  });
+  if (!gl) return null;
+
+  const vertexSource = `#version 300 es
+    in vec2 a_position;
+    out vec2 v_uv;
+    void main() {
+      v_uv = a_position * 0.5 + 0.5;
+      gl_Position = vec4(a_position, 0.0, 1.0);
+    }
+  `;
+  const fragmentSource = `#version 300 es
+    precision highp float;
+    uniform sampler2D u_texture;
+    uniform vec2 u_resolution;
+    uniform vec2 u_mouse;
+    uniform vec2 u_previousMouse;
+    uniform vec2 u_velocity;
+    uniform float u_time;
+    uniform float u_splat;
+    in vec2 v_uv;
+    out vec4 outputColor;
+
+    float segmentDistance(vec2 point, vec2 start, vec2 end) {
+      vec2 line = end - start;
+      float lengthSquared = max(dot(line, line), 0.000001);
+      float progress = clamp(dot(point - start, line) / lengthSquared, 0.0, 1.0);
+      return length(point - (start + line * progress));
+    }
+
+    void main() {
+      vec2 aspect = vec2(u_resolution.x / u_resolution.y, 1.0);
+      vec2 fromMouse = (v_uv - u_mouse) * aspect;
+      float influence = exp(-dot(fromMouse, fromMouse) * 42.0);
+      vec2 perpendicular = vec2(-fromMouse.y, fromMouse.x);
+      vec2 flow = u_velocity * 0.00022;
+      vec2 curl = perpendicular * influence * sin(u_time * 2.2 + length(fromMouse) * 35.0) * 0.004;
+      vec2 ambientFlow = vec2(
+        sin(v_uv.y * 19.0 + u_time * 0.8),
+        cos(v_uv.x * 17.0 - u_time * 0.65)
+      ) * 0.00055;
+      vec2 sampleUv = clamp(v_uv - flow * influence + curl + ambientFlow, vec2(0.001), vec2(0.999));
+      vec4 previous = texture(u_texture, sampleUv) * 0.974;
+
+      float distanceToPath = segmentDistance(
+        v_uv * aspect,
+        u_previousMouse * aspect,
+        u_mouse * aspect
+      );
+      float core = exp(-(distanceToPath * distanceToPath) / 0.0002);
+      float plume = exp(-(distanceToPath * distanceToPath) / 0.00072) * 0.34;
+      float dye = (core + plume) * u_splat;
+      float colorShift = 0.5 + 0.5 * sin(u_time * 1.7);
+      vec3 blue = mix(vec3(0.035, 0.24, 0.95), vec3(0.42, 0.78, 1.0), colorShift);
+      vec3 whiteBlue = mix(blue, vec3(0.86, 0.96, 1.0), 0.28);
+      vec3 color = previous.rgb + whiteBlue * dye * 0.38;
+      float alpha = min(previous.a + dye * 0.34, 0.78);
+      outputColor = vec4(color, alpha);
+    }
+  `;
+
+  const compileShader = (type: number, source: string) => {
+    const shader = gl.createShader(type);
+    if (!shader) return null;
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      gl.deleteShader(shader);
+      return null;
+    }
+    return shader;
+  };
+
+  const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
+  const fragmentShader = compileShader(gl.FRAGMENT_SHADER, fragmentSource);
+  if (!vertexShader || !fragmentShader) return null;
+
+  const program = gl.createProgram();
+  if (!program) return null;
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+  gl.deleteShader(vertexShader);
+  gl.deleteShader(fragmentShader);
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    gl.deleteProgram(program);
+    return null;
+  }
+
+  const positionBuffer = gl.createBuffer();
+  const vertexArray = gl.createVertexArray();
+  if (!positionBuffer || !vertexArray) return null;
+  gl.bindVertexArray(vertexArray);
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+    gl.STATIC_DRAW,
+  );
+  const positionLocation = gl.getAttribLocation(program, "a_position");
+  gl.enableVertexAttribArray(positionLocation);
+  gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+  const uniform = (name: string) => gl.getUniformLocation(program, name);
+  const textureUniform = uniform("u_texture");
+  const resolutionUniform = uniform("u_resolution");
+  const mouseUniform = uniform("u_mouse");
+  const previousMouseUniform = uniform("u_previousMouse");
+  const velocityUniform = uniform("u_velocity");
+  const timeUniform = uniform("u_time");
+  const splatUniform = uniform("u_splat");
+  const framebuffer = gl.createFramebuffer();
+  if (!framebuffer) return null;
+
+  let textures: WebGLTexture[] = [];
+  let readIndex = 0;
+  let animationFrameId = 0;
+  let pointerX = -1;
+  let pointerY = -1;
+  let previousX = -1;
+  let previousY = -1;
+  let velocityX = 0;
+  let velocityY = 0;
+  let pendingSplat = false;
+  let destroyed = false;
+
+  const createTexture = () => {
+    const texture = gl.createTexture();
+    if (!texture) return null;
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      canvas.width,
+      canvas.height,
+      0,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      null,
+    );
+    return texture;
+  };
+
+  const resize = () => {
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    const width = Math.max(1, Math.round(window.innerWidth * pixelRatio));
+    const height = Math.max(1, Math.round(window.innerHeight * pixelRatio));
+    if (canvas.width === width && canvas.height === height) return;
+    canvas.width = width;
+    canvas.height = height;
+    textures.forEach((texture) => gl.deleteTexture(texture));
+    textures = [createTexture(), createTexture()].filter(
+      (texture): texture is WebGLTexture => texture !== null,
+    );
+    readIndex = 0;
+    gl.viewport(0, 0, width, height);
+  };
+
+  const clear = () => {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.clearColor(0, 0, 0, 0);
+    textures.forEach((texture) => {
+      gl.framebufferTexture2D(
+        gl.FRAMEBUFFER,
+        gl.COLOR_ATTACHMENT0,
+        gl.TEXTURE_2D,
+        texture,
+        0,
+      );
+      gl.clear(gl.COLOR_BUFFER_BIT);
+    });
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    pendingSplat = false;
+  };
+
+  const draw = (time: number) => {
+    if (destroyed || textures.length !== 2) return;
+    const writeIndex = 1 - readIndex;
+    gl.useProgram(program);
+    gl.bindVertexArray(vertexArray);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, textures[readIndex]);
+    gl.uniform1i(textureUniform, 0);
+    gl.uniform2f(resolutionUniform, canvas.width, canvas.height);
+    gl.uniform2f(mouseUniform, pointerX, pointerY);
+    gl.uniform2f(previousMouseUniform, previousX, previousY);
+    gl.uniform2f(velocityUniform, velocityX, velocityY);
+    gl.uniform1f(timeUniform, time / 1000);
+    gl.uniform1f(splatUniform, pendingSplat ? 1 : 0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      textures[writeIndex],
+      0,
+    );
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, framebuffer);
+    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+    gl.blitFramebuffer(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+      gl.COLOR_BUFFER_BIT,
+      gl.NEAREST,
+    );
+    readIndex = writeIndex;
+    pendingSplat = false;
+    velocityX *= 0.88;
+    velocityY *= 0.88;
+    animationFrameId = requestAnimationFrame(draw);
+  };
+
+  resize();
+  clear();
+  window.addEventListener("resize", resize, { passive: true });
+  animationFrameId = requestAnimationFrame(draw);
+
+  return {
+    move: (x, y, nextVelocityX, nextVelocityY) => {
+      const normalizedX = x / window.innerWidth;
+      const normalizedY = 1 - y / window.innerHeight;
+      if (pointerX < 0) {
+        pointerX = normalizedX;
+        pointerY = normalizedY;
+      }
+      previousX = pointerX;
+      previousY = pointerY;
+      pointerX = normalizedX;
+      pointerY = normalizedY;
+      velocityX = nextVelocityX;
+      velocityY = -nextVelocityY;
+      pendingSplat = true;
+    },
+    clear,
+    destroy: () => {
+      destroyed = true;
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resize);
+      textures.forEach((texture) => gl.deleteTexture(texture));
+      gl.deleteFramebuffer(framebuffer);
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteVertexArray(vertexArray);
+      gl.deleteProgram(program);
+    },
+  };
+};
 
 export function SwiftGlowingCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLSpanElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
+  const fluidCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const cursor = cursorRef.current;
     const arrow = arrowRef.current;
-    const glow = glowRef.current;
-    if (!cursor || !arrow || !glow) return;
+    const fluidCanvas = fluidCanvasRef.current;
+    if (!cursor || !arrow || !fluidCanvas) return;
 
     const finePointer = window.matchMedia("(pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -48,16 +318,14 @@ export function SwiftGlowingCursor() {
 
       if (!finePointer.matches || reducedMotion.matches) return;
 
+      const fluidTrail = createFluidTrail(fluidCanvas);
+
       let pointerX = -100;
       let pointerY = -100;
       let previousPointerX = -100;
       let previousPointerY = -100;
-      let glowX = -100;
-      let glowY = -100;
       let rotation = 0;
       let targetRotation = 0;
-      let smokeAngle = 0;
-      let targetSmokeAngle = 0;
       let scale = 1;
       let speed = 0;
       let frameId: number | null = null;
@@ -70,8 +338,6 @@ export function SwiftGlowingCursor() {
       let lastHoverTarget: EventTarget | null = null;
       let lastCursorTransform = "";
       let lastArrowTransform = "";
-      let lastGlowTransform = "";
-      let lastGlowOpacity = "";
 
       const setData = (name: string, value: string) => {
         if (cursor.dataset[name] !== value) cursor.dataset[name] = value;
@@ -122,8 +388,6 @@ export function SwiftGlowingCursor() {
 
         const rotationAlpha = 1 - Math.exp(-24 * deltaTime);
         const scaleAlpha = 1 - Math.exp(-26 * deltaTime);
-        const glowAlpha = 1 - Math.exp(-20 * deltaTime);
-        const smokeAngleAlpha = 1 - Math.exp(-22 * deltaTime);
         const normalizedSpeed = clamp(speed / 40, 0, 1);
         const baseScale = isHovering ? 1.1 : 1;
         const targetScale = isTextVariant
@@ -134,11 +398,6 @@ export function SwiftGlowingCursor() {
 
         rotation += (targetRotation - rotation) * rotationAlpha;
         scale += (targetScale - scale) * scaleAlpha;
-        glowX += (pointerX - glowX) * glowAlpha;
-        glowY += (pointerY - glowY) * glowAlpha;
-        smokeAngle +=
-          shortestAngleDifference(smokeAngle, targetSmokeAngle) *
-          smokeAngleAlpha;
         speed *= Math.exp(-14 * deltaTime);
         targetRotation *= Math.exp(-16 * deltaTime);
 
@@ -154,39 +413,13 @@ export function SwiftGlowingCursor() {
           lastArrowTransform = arrowTransform;
         }
 
-        const smokeStretch = 0.9 + normalizedSpeed * 0.85;
-        const glowTransform = `translate3d(${glowX.toFixed(2)}px, ${glowY.toFixed(2)}px, 0) translate(-50%, -50%) rotate(${smokeAngle.toFixed(2)}deg) scaleX(${smokeStretch.toFixed(3)})`;
-        if (glowTransform !== lastGlowTransform) {
-          glow.style.transform = glowTransform;
-          lastGlowTransform = glowTransform;
-        }
-
-        const glowOpacity = isTextVariant
-          ? "0"
-          : Math.min(normalizedSpeed * 0.48, 0.48).toFixed(3);
-        if (glowOpacity !== lastGlowOpacity) {
-          glow.style.opacity = glowOpacity;
-          lastGlowOpacity = glowOpacity;
-        }
-
-        const positionSettled =
-          Math.abs(glowX - pointerX) < 0.1 && Math.abs(glowY - pointerY) < 0.1;
         const rotationSettled =
           Math.abs(rotation - targetRotation) < 0.05 &&
           Math.abs(targetRotation) < 0.05;
         const scaleSettled = Math.abs(scale - targetScale) < 0.002;
         const speedSettled = speed < 0.1;
-        const smokeAngleSettled =
-          Math.abs(shortestAngleDifference(smokeAngle, targetSmokeAngle)) <
-          0.05;
 
-        if (
-          !positionSettled ||
-          !rotationSettled ||
-          !scaleSettled ||
-          !speedSettled ||
-          !smokeAngleSettled
-        ) {
+        if (!rotationSettled || !scaleSettled || !speedSettled) {
           frameId = requestAnimationFrame(animate);
         } else {
           previousFrameTime = 0;
@@ -207,8 +440,6 @@ export function SwiftGlowingCursor() {
         if (!hasPointerPosition) {
           previousPointerX = pointerX;
           previousPointerY = pointerY;
-          glowX = pointerX;
-          glowY = pointerY;
           hasPointerPosition = true;
         }
 
@@ -218,9 +449,7 @@ export function SwiftGlowingCursor() {
         previousPointerY = pointerY;
         speed = Math.min(Math.hypot(velocityX, velocityY), 40);
         targetRotation = isTextVariant ? 0 : clamp(velocityX * 0.45, -10, 10);
-        if (speed > 0.5) {
-          targetSmokeAngle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
-        }
+        fluidTrail?.move(pointerX, pointerY, velocityX, velocityY);
 
         updateHoverState(event.target);
         setVisible(!document.hidden);
@@ -255,8 +484,7 @@ export function SwiftGlowingCursor() {
         lastHoverTarget = null;
         stopAnimation();
         setVisible(false);
-        glow.style.opacity = "0";
-        lastGlowOpacity = "0";
+        fluidTrail?.clear();
       };
 
       const handleDocumentMouseOut = (event: MouseEvent) => {
@@ -315,7 +543,7 @@ export function SwiftGlowingCursor() {
         );
         document.documentElement.classList.remove("custom-cursor-enabled");
         setVisible(false);
-        glow.style.opacity = "0";
+        fluidTrail?.destroy();
       };
     };
 
@@ -333,7 +561,11 @@ export function SwiftGlowingCursor() {
 
   return (
     <Fragment>
-      <div ref={glowRef} className="swift-cursor-glow" aria-hidden="true" />
+      <canvas
+        ref={fluidCanvasRef}
+        className="swift-cursor-fluid"
+        aria-hidden="true"
+      />
       <div
         ref={cursorRef}
         className="swift-cursor"

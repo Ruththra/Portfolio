@@ -61,45 +61,13 @@ a {
 }
 
 /* Swift glowing cursor */
-.swift-cursor-glow {
+.swift-cursor-fluid {
   position: fixed;
   z-index: 2147483646;
-  top: 0;
-  left: 0;
-  width: 46px;
-  height: 22px;
-  border-radius: 50%;
-  opacity: 0;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
   pointer-events: none;
-  background: radial-gradient(
-    ellipse at 68% 50%,
-    rgba(174, 231, 245, 0.56),
-    rgba(66, 146, 201, 0.26) 47%,
-    transparent 78%
-  );
-  filter: blur(6px);
-  transform: translate3d(-100px, -100px, 0);
-  will-change: transform, opacity;
-}
-.swift-cursor-glow::before,
-.swift-cursor-glow::after {
-  content: "";
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(174, 213, 226, 0.24);
-}
-.swift-cursor-glow::before {
-  top: 4px;
-  left: 2px;
-  width: 18px;
-  height: 12px;
-}
-.swift-cursor-glow::after {
-  top: 7px;
-  left: -7px;
-  width: 13px;
-  height: 9px;
-  opacity: 0.68;
 }
 .swift-cursor {
   position: fixed;
@@ -229,7 +197,7 @@ a {
 }
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
   .swift-cursor,
-  .swift-cursor-glow {
+  .swift-cursor-fluid {
     display: none;
   }
 }
