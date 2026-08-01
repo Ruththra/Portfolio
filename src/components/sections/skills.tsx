@@ -202,8 +202,14 @@ export function Skills() {
                     const Icon = technologyIcons[technology.id];
                     return (
                       <li
-                        className={`tech-tile${technology.featured ? "tech-tile--featured" : ""}${technology.wide ? "tech-tile--wide" : ""}`}
+                        className={
+                          technology.featured
+                            ? "tech-tile tech-tile--featured"
+                            : "tech-tile"
+                        }
                         key={technology.id}
+                        tabIndex={0}
+                        aria-label={technology.name}
                         style={
                           {
                             "--tech-color": technology.color ?? "var(--cyan)",
@@ -216,9 +222,6 @@ export function Skills() {
                         <span className="tech-tile__name">
                           {technology.name}
                         </span>
-                        {technology.featured && (
-                          <span className="tech-tile__badge">Core</span>
-                        )}
                       </li>
                     );
                   })}

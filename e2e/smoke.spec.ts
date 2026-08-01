@@ -17,6 +17,18 @@ test("archive routes work", async ({ page }) => {
   await page.goto("/blogs");
   await expect(page.getByRole("heading", { name: "Blog" })).toBeVisible();
 });
+test("technology library reveals accessible names", async ({ page }) => {
+  await page.goto("/");
+  const python = page.locator(".tech-tile").filter({ hasText: "Python" });
+  const name = python.locator(".tech-tile__name");
+
+  await expect(python).toHaveAttribute("aria-label", "Python");
+  await expect(name).toHaveCSS("opacity", "0");
+  await python.hover();
+  await expect(name).toHaveCSS("opacity", "1");
+  await python.focus();
+  await expect(name).toHaveCSS("opacity", "1");
+});
 test("mobile menu and invalid contact", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
@@ -56,7 +68,9 @@ test("desktop avatar stays pinned through the page", async ({ page }) => {
   await expect(skills).toBeInViewport();
 
   const avatarBox = await avatar.boundingBox();
-  const skillsContentBox = await page.locator(".technology-panel").boundingBox();
+  const skillsContentBox = await page
+    .locator(".technology-panel")
+    .boundingBox();
   expect(avatarBox).not.toBeNull();
   expect(skillsContentBox).not.toBeNull();
   expect(skillsContentBox!.x + skillsContentBox!.width).toBeLessThanOrEqual(
