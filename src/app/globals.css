@@ -61,23 +61,27 @@ a {
 }
 
 /* Swift glowing cursor */
-.swift-cursor-trail {
+.swift-cursor-glow {
   position: fixed;
   z-index: 2147483646;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  opacity: 0;
   pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(82, 220, 255, 0.46),
+    rgba(0, 120, 255, 0.16) 48%,
+    transparent 75%
+  );
+  filter: blur(7px);
+  transform: translate3d(-100px, -100px, 0);
+  will-change: transform, opacity;
 }
 .swift-cursor {
-  --cursor-x: -100px;
-  --cursor-y: -100px;
-  --cursor-rotation: 0deg;
-  --cursor-scale: 1;
-  --cursor-speed: 0;
-  --cursor-glow-strength: 0;
-  --cursor-brightness: 0.92;
-  --cursor-motion-angle: 180deg;
-  --cursor-streak-opacity: 0;
-  --cursor-streak-length: 10px;
   position: fixed;
   z-index: 2147483647;
   top: 0;
@@ -87,9 +91,9 @@ a {
   opacity: 0;
   pointer-events: none;
   user-select: none;
-  transform: translate3d(var(--cursor-x), var(--cursor-y), 0);
+  transform: translate3d(-100px, -100px, 0);
   transition: opacity 120ms ease;
-  will-change: transform;
+  will-change: transform, opacity;
 }
 .swift-cursor[data-visible="true"] {
   opacity: 1;
@@ -104,8 +108,7 @@ a {
   display: block;
   width: 40px;
   height: 40px;
-  transform: translate(-32.2%, -18.5%) rotate(var(--cursor-rotation))
-    scale(var(--cursor-scale));
+  transform: translate(-32.2%, -18.5%);
   transform-origin: 32.2% 18.5%;
   transition: opacity 80ms ease;
   will-change: transform;
@@ -117,30 +120,10 @@ a {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  filter: brightness(var(--cursor-brightness))
-    drop-shadow(0 0 2px rgba(175, 245, 255, 0.6))
+  filter: brightness(0.92) drop-shadow(0 0 2px rgba(175, 245, 255, 0.6))
     drop-shadow(0 0 5px rgba(45, 195, 255, 0.42))
     drop-shadow(0 0 10px rgba(0, 105, 255, 0.25));
   transition: filter 100ms ease;
-}
-.swift-cursor__streak {
-  display: none;
-}
-.swift-cursor__motion-glow {
-  position: absolute;
-  z-index: 0;
-  inset: 18%;
-  border-radius: 50%;
-  opacity: calc(var(--cursor-glow-strength) * 0.48);
-  background: radial-gradient(
-    circle,
-    rgba(82, 220, 255, 0.72),
-    rgba(0, 120, 255, 0.2) 48%,
-    transparent 75%
-  );
-  filter: blur(7px);
-  transform: scale(calc(0.75 + var(--cursor-glow-strength) * 0.55));
-  transition: opacity 80ms linear;
 }
 .swift-cursor[data-hovering="true"] .swift-cursor__image {
   filter: brightness(1.03) drop-shadow(0 0 3px rgba(195, 250, 255, 0.78))
@@ -225,7 +208,8 @@ a {
   }
 }
 @media (pointer: coarse), (prefers-reduced-motion: reduce) {
-  .swift-cursor {
+  .swift-cursor,
+  .swift-cursor-glow {
     display: none;
   }
 }
