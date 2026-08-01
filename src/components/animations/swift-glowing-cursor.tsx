@@ -24,6 +24,9 @@ const EDITABLE_SELECTOR = [
 const clamp = (value: number, minimum: number, maximum: number) =>
   Math.min(Math.max(value, minimum), maximum);
 
+const shortestAngleDifference = (from: number, to: number) =>
+  ((to - from + 540) % 360) - 180;
+
 export function SwiftGlowingCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLSpanElement>(null);
@@ -53,6 +56,8 @@ export function SwiftGlowingCursor() {
       let glowY = -100;
       let rotation = 0;
       let targetRotation = 0;
+      let smokeAngle = 0;
+      let targetSmokeAngle = 0;
       let scale = 1;
       let speed = 0;
       let frameId: number | null = null;
@@ -118,6 +123,7 @@ export function SwiftGlowingCursor() {
         const rotationAlpha = 1 - Math.exp(-24 * deltaTime);
         const scaleAlpha = 1 - Math.exp(-26 * deltaTime);
         const glowAlpha = 1 - Math.exp(-20 * deltaTime);
+        const smokeAngleAlpha = 1 - Math.exp(-22 * deltaTime);
         const normalizedSpeed = clamp(speed / 40, 0, 1);
         const baseScale = isHovering ? 1.1 : 1;
         const targetScale = isTextVariant
@@ -130,6 +136,9 @@ export function SwiftGlowingCursor() {
         scale += (targetScale - scale) * scaleAlpha;
         glowX += (pointerX - glowX) * glowAlpha;
         glowY += (pointerY - glowY) * glowAlpha;
+        smokeAngle +=
+          shortestAngleDifference(smokeAngle, targetSmokeAngle) *
+          smokeAngleAlpha;
         speed *= Math.exp(-14 * deltaTime);
         targetRotation *= Math.exp(-16 * deltaTime);
 
@@ -145,8 +154,8 @@ export function SwiftGlowingCursor() {
           lastArrowTransform = arrowTransform;
         }
 
-        const glowScale = 0.88 + normalizedSpeed * 0.22;
-        const glowTransform = `translate3d(${glowX.toFixed(2)}px, ${glowY.toFixed(2)}px, 0) translate(-50%, -50%) scale(${glowScale.toFixed(3)})`;
+        const smokeStretch = 0.9 + normalizedSpeed * 0.85;
+        const glowTransform = `translate3d(${glowX.toFixed(2)}px, ${glowY.toFixed(2)}px, 0) translate(-50%, -50%) rotate(${smokeAngle.toFixed(2)}deg) scaleX(${smokeStretch.toFixed(3)})`;
         if (glowTransform !== lastGlowTransform) {
           glow.style.transform = glowTransform;
           lastGlowTransform = glowTransform;
@@ -154,7 +163,7 @@ export function SwiftGlowingCursor() {
 
         const glowOpacity = isTextVariant
           ? "0"
-          : Math.min(0.18 + normalizedSpeed * 0.3, 0.48).toFixed(3);
+          : Math.min(normalizedSpeed * 0.48, 0.48).toFixed(3);
         if (glowOpacity !== lastGlowOpacity) {
           glow.style.opacity = glowOpacity;
           lastGlowOpacity = glowOpacity;
@@ -167,12 +176,16 @@ export function SwiftGlowingCursor() {
           Math.abs(targetRotation) < 0.05;
         const scaleSettled = Math.abs(scale - targetScale) < 0.002;
         const speedSettled = speed < 0.1;
+        const smokeAngleSettled =
+          Math.abs(shortestAngleDifference(smokeAngle, targetSmokeAngle)) <
+          0.05;
 
         if (
           !positionSettled ||
           !rotationSettled ||
           !scaleSettled ||
-          !speedSettled
+          !speedSettled ||
+          !smokeAngleSettled
         ) {
           frameId = requestAnimationFrame(animate);
         } else {
@@ -205,6 +218,9 @@ export function SwiftGlowingCursor() {
         previousPointerY = pointerY;
         speed = Math.min(Math.hypot(velocityX, velocityY), 40);
         targetRotation = isTextVariant ? 0 : clamp(velocityX * 0.45, -10, 10);
+        if (speed > 0.5) {
+          targetSmokeAngle = Math.atan2(velocityY, velocityX) * (180 / Math.PI);
+        }
 
         updateHoverState(event.target);
         setVisible(!document.hidden);
