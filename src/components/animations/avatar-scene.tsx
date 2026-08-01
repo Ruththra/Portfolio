@@ -1,22 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import type { RefObject } from "react";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type AvatarSequenceProps = {
-  heroTrackRef: RefObject<HTMLElement | null>;
-};
-
 const VIDEO_SRC = "/media/avatar/avatar-transformation.webm";
 
-export function AvatarSequence({
-  heroTrackRef,
-}: AvatarSequenceProps) {
+export function AvatarSequence() {
   const rootRef = useRef<HTMLDivElement>(null);
   const portraitRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -26,9 +19,8 @@ export function AvatarSequence({
     const root = rootRef.current;
     const portrait = portraitRef.current;
     const video = videoRef.current;
-    const track = heroTrackRef.current;
 
-    if (!root || !portrait || !video || !track) return;
+    if (!root || !portrait || !video) return;
 
     video.pause();
     video.currentTime = 0;
@@ -76,8 +68,8 @@ export function AvatarSequence({
             defaults: { ease: "none" },
             scrollTrigger: {
               id: "hero-avatar-video",
-              trigger: track,
-              start: "top top",
+              trigger: root,
+              start: "center center",
               endTrigger: document.body,
               end: "bottom bottom",
               pin: root,
@@ -172,7 +164,7 @@ export function AvatarSequence({
       media.revert();
       video.pause();
     };
-  }, [heroTrackRef]);
+  }, []);
 
   return (
     <div ref={rootRef} className="avatar-stage">

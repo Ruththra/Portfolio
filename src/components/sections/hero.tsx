@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
 import {
   ArrowDown,
@@ -17,8 +16,6 @@ import { TypingText } from "@/components/animations/typing-text";
 import { AvatarSequence } from "@/components/animations/avatar-scene";
 
 export function Hero() {
-  const heroTrackRef = useRef<HTMLElement>(null);
-
   const socials = [
     ["Email", siteConfig.email ? `mailto:${siteConfig.email}` : "", Mail],
     ["LinkedIn", siteConfig.socials.linkedin, Linkedin],
@@ -26,7 +23,7 @@ export function Hero() {
     ["Instagram", siteConfig.socials.instagram, Instagram],
   ] as const;
   return (
-    <section ref={heroTrackRef} id="home" className="hero-track">
+    <section id="home" className="hero-track">
       <div className="hero">
         <div className="hero-copy">
           <p className="status">
@@ -82,7 +79,7 @@ export function Hero() {
             Based in Sri Lanka · Open to remote opportunities
           </p>
         </div>
-        <AvatarSequence heroTrackRef={heroTrackRef} />
+        <AvatarSequence />
         <a className="scroll-cue" href="#skills">
           <Mouse aria-hidden="true" />
           Scroll to explore

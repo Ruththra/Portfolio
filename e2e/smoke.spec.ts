@@ -65,6 +65,9 @@ test("desktop avatar stays pinned through the page", async ({ page }) => {
   expect(avatarBox!.y + avatarBox!.height).toBeLessThan(
     page.viewportSize()!.height,
   );
+  const avatarCenter = avatarBox!.y + avatarBox!.height / 2;
+  const viewportCenter = page.viewportSize()!.height / 2;
+  expect(Math.abs(avatarCenter - viewportCenter)).toBeLessThanOrEqual(2);
 
   await page.locator("#contact").scrollIntoViewIfNeeded();
   await expect(avatar).toBeInViewport();
