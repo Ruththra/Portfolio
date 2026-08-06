@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { contactSchema } from "@/lib/contact";
+import { contactSchema } from "@/features/contact/contact.schema";
 import { hasUrl, typingFrame } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
-import { getProject } from "@/data/projects";
-import { getBlog } from "@/data/blogs";
+import { getProject } from "@/features/projects/projects.data";
+import { getBlog } from "@/features/blog/blog.data";
 
 describe("core portfolio behavior", () => {
   it("types and holds Ruththra without layout-dependent values", () => {
@@ -44,6 +44,8 @@ describe("core portfolio behavior", () => {
   it("handles missing optional URLs and content", () => {
     expect(hasUrl("")).toBe(false);
     expect(hasUrl("https://example.com")).toBe(true);
+    expect(hasUrl("javascript:alert(1)")).toBe(false);
+    expect(hasUrl("not a URL")).toBe(false);
     expect(getProject("missing")).toBeUndefined();
     expect(getBlog("missing")).toBeUndefined();
   });

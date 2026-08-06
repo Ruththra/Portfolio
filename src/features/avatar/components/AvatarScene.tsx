@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { avatarAnimation, avatarAssets } from "@/features/avatar/avatar.config";
+import { AvatarDecorations } from "@/features/avatar/components/AvatarDecorations";
 
 gsap.registerPlugin(ScrollTrigger);
-
-const VIDEO_SRC = "/media/avatar/avatar-transformation.webm";
 
 export function AvatarSequence() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -31,13 +31,13 @@ export function AvatarSequence() {
       if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
         setShowLoading(true);
       }
-    }, 2500);
+    }, avatarAnimation.loadingDelayMs);
 
     const media = gsap.matchMedia();
     media.add(
       {
-        desktop: "(min-width: 1200px)",
-        reduceMotion: "(prefers-reduced-motion: reduce)",
+        desktop: avatarAnimation.desktopQuery,
+        reduceMotion: avatarAnimation.reducedMotionQuery,
       },
       (context) => {
         const { desktop, reduceMotion } = context.conditions as {
@@ -67,22 +67,30 @@ export function AvatarSequence() {
           timeline = gsap.timeline({
             defaults: { ease: "none" },
             scrollTrigger: {
-              id: "hero-avatar-video",
+              id: avatarAnimation.scrollTrigger.id,
               trigger: root,
-              start: "center center",
+              start: avatarAnimation.scrollTrigger.start,
               endTrigger: document.body,
-              end: "bottom bottom",
+              end: avatarAnimation.scrollTrigger.end,
               pin: root,
               pinSpacing: false,
-              scrub: 0.6,
-              anticipatePin: 1,
+              scrub: avatarAnimation.scrollTrigger.scrub,
+              anticipatePin: avatarAnimation.scrollTrigger.anticipatePin,
               invalidateOnRefresh: true,
             },
           });
 
           timeline
-            .to(video, { autoAlpha: 1, duration: 0.12 }, 0)
-            .to(portrait, { autoAlpha: 0, duration: 0.12 }, 0)
+            .to(
+              video,
+              { autoAlpha: 1, duration: avatarAnimation.transitionDuration },
+              0,
+            )
+            .to(
+              portrait,
+              { autoAlpha: 0, duration: avatarAnimation.transitionDuration },
+              0,
+            )
             .to(
               root.querySelector(".sweep"),
               { xPercent: 650, opacity: 0.75, duration: 0.16 },
@@ -107,7 +115,7 @@ export function AvatarSequence() {
               state,
               {
                 time: endTime,
-                duration: 0.88,
+                duration: avatarAnimation.videoDuration,
                 onUpdate: () => {
                   const safeTime = Math.min(
                     Math.max(state.time, 0),
@@ -115,7 +123,8 @@ export function AvatarSequence() {
                   );
                   if (
                     !video.seeking &&
-                    Math.abs(video.currentTime - safeTime) > 1 / 24
+                    Math.abs(video.currentTime - safeTime) >
+                      1 / avatarAnimation.videoFrameRate
                   ) {
                     video.currentTime = safeTime;
                   }
@@ -168,15 +177,10 @@ export function AvatarSequence() {
 
   return (
     <div ref={rootRef} className="avatar-stage">
-      <div className="nebula" aria-hidden="true" />
-      <div className="orbit orbit-one" aria-hidden="true" />
-      <div className="orbit orbit-two" aria-hidden="true" />
-      <span className="star s1" aria-hidden="true" />
-      <span className="star s2" aria-hidden="true" />
-      <span className="star s3" aria-hidden="true" />
+      <AvatarDecorations />
       <div ref={portraitRef} className="avatar-media avatar-portrait">
         <Image
-          src="/media/avatar/portrait-original.webp"
+          src={avatarAssets.portrait}
           alt="Portrait of Ruththiragayan Sutharsan"
           fill
           priority
@@ -190,10 +194,10 @@ export function AvatarSequence() {
         muted
         playsInline
         preload="auto"
-        poster="/media/avatar/portrait-original.webp"
+        poster={avatarAssets.portrait}
         aria-hidden="true"
       >
-        <source src={VIDEO_SRC} type="video/webm" />
+        <source src={avatarAssets.transformation} type="video/webm" />
       </video>
       <div className="sweep" aria-hidden="true" />
       {showLoading && (

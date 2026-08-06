@@ -4,7 +4,11 @@ import { cloneElement, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoaderCircle, Send } from "lucide-react";
-import { contactSchema, type ContactInput } from "@/lib/contact";
+import {
+  contactSchema,
+  type ContactInput,
+} from "@/features/contact/contact.schema";
+import type { ContactResponse } from "@/features/contact/contact.types";
 
 export function ContactForm() {
   const startedAt = useRef(Date.now());
@@ -35,10 +39,10 @@ export function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(values),
       });
-      const body = (await response.json()) as { message?: string };
+      const body = (await response.json()) as ContactResponse;
       if (!response.ok)
         throw new Error(body.message || "Unable to send your message.");
-      setResult({ ok: true, message: body.message || "Message sent." });
+      setResult({ ok: true, message: body.message });
       reset({
         name: "",
         email: "",

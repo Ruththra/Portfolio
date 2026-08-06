@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import type { IconType } from "react-icons";
 import {
@@ -61,7 +58,8 @@ import {
   technologyGroups,
   type TechnologyId,
 } from "@/data/skills";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { SectionHeading } from "@/components/ui/SectionHeading";
+import { ScrollRevealSection } from "@/components/animations/ScrollRevealSection";
 
 type TechnologyIcon = IconType | LucideIcon;
 const technologyIcons: Record<TechnologyId, TechnologyIcon> = {
@@ -122,27 +120,8 @@ const groupIcons: Record<(typeof technologyGroups)[number]["id"], LucideIcon> =
   };
 
 export function Skills() {
-  const sectionRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section || matchMedia("(prefers-reduced-motion: reduce)").matches)
-      return;
-    section.dataset.reveal = "ready";
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          section.dataset.reveal = "visible";
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.08 },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="skills" className="section skills-section" ref={sectionRef}>
+    <ScrollRevealSection id="skills" className="section skills-section">
       <SectionHeading
         eyebrow="THE TOOLKIT"
         title="Skills & Technologies"
@@ -239,6 +218,6 @@ export function Skills() {
           </ul>
         </div>
       </div>
-    </section>
+    </ScrollRevealSection>
   );
 }

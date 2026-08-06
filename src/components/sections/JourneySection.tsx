@@ -1,5 +1,5 @@
 import { journey } from "@/data/journey";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 export function Journey() {
   return (
     <section className="section">

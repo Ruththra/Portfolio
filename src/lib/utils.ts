@@ -1,5 +1,13 @@
-export const hasUrl = (value: string | undefined): value is string =>
-  Boolean(value?.trim());
+export function hasUrl(value: string | undefined): value is string {
+  if (!value?.trim()) return false;
+  if (value.startsWith("/")) return true;
+  try {
+    const url = new URL(value);
+    return ["http:", "https:", "mailto:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
 
 export function typingFrame(elapsed: number, text = "Ruththra") {
   const typeDuration = text.length * 120;

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { projects } from "@/data/projects";
-import { EmptyState } from "@/components/ui/empty-state";
+import { projects } from "@/features/projects/projects.data";
+import { EmptyState } from "@/components/ui/EmptyState";
 export const metadata: Metadata = {
   title: "Projects",
   description:

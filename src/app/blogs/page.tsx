@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { plannedTopics, publishedBlogs } from "@/data/blogs";
-import { EmptyState } from "@/components/ui/empty-state";
+import { plannedTopics, publishedBlogs } from "@/features/blog/blog.data";
+import { EmptyState } from "@/components/ui/EmptyState";
 export const metadata: Metadata = {
   title: "Blog",
   description:
