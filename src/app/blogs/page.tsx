@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { plannedTopics, publishedBlogs } from "@/features/blog/blog.data";
+import { plannedTopics } from "@/features/blog/blog.data";
+import { listPublishedPosts } from "@/features/blog/blog.repository";
 import { EmptyState } from "@/components/ui/EmptyState";
 export const metadata: Metadata = {
   title: "Blog",
   description:
     "Writing about full-stack engineering, AI, data science, and creative development.",
 };
-export default function BlogsPage() {
+export const dynamic = "force-dynamic";
+export default async function BlogsPage() {
+  const publishedBlogs = await listPublishedPosts();
   return (
     <div className="page-shell">
       <p className="eyebrow">FIELD NOTES</p>
@@ -24,9 +27,20 @@ export default function BlogsPage() {
               href={`/blogs/${post.slug}`}
               key={post.slug}
             >
-              <span>{post.readingTime}</span>
+              <span>
+                {post.category} ·{" "}
+                {Math.max(1, Math.ceil(post.content.split(/\s+/).length / 220))}{" "}
+                min read
+              </span>
               <h2>{post.title}</h2>
-              <p>{post.summary}</p>
+              <p>{post.excerpt}</p>
+              <small>
+                {post.publishedAt
+                  ? new Intl.DateTimeFormat("en", { dateStyle: "long" }).format(
+                      post.publishedAt,
+                    )
+                  : ""}
+              </small>
             </Link>
           ))}
         </div>

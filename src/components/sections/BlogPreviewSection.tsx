@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { publishedBlogs } from "@/features/blog/blog.data";
+import { listPublishedPosts } from "@/features/blog/blog.repository";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-export function BlogPreview() {
+export async function BlogPreview() {
+  const publishedBlogs = await listPublishedPosts();
   return (
     <section className="section">
       <div className="heading-row">

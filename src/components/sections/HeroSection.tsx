@@ -8,17 +8,18 @@ import {
   MapPin,
   Mouse,
 } from "lucide-react";
-import { siteConfig } from "@/config/site";
 import { hasUrl } from "@/lib/utils";
 import { TypingText } from "@/components/animations/TypingText";
 import { AvatarSequence } from "@/features/avatar/components/AvatarScene";
+import { getPortfolioContent } from "@/features/content/content.repository";
 
-export function Hero() {
+export async function Hero() {
+  const content = await getPortfolioContent();
   const socials = [
-    ["Email", siteConfig.email ? `mailto:${siteConfig.email}` : "", Mail],
-    ["LinkedIn", siteConfig.socials.linkedin, Linkedin],
-    ["GitHub", siteConfig.socials.github, Github],
-    ["Instagram", siteConfig.socials.instagram, Instagram],
+    ["Email", content.email ? `mailto:${content.email}` : "", Mail],
+    ["LinkedIn", content.linkedin, Linkedin],
+    ["GitHub", content.github, Github],
+    ["Instagram", content.instagram, Instagram],
   ] as const;
   return (
     <section id="home" className="hero-track">
@@ -29,14 +30,9 @@ export function Hero() {
             Available for opportunities
           </p>
           <p className="greeting">Hello! I’m</p>
-          <h1>
-            Ruththiragayan <span>Sutharsan</span>
-          </h1>
+          <h1>{content.heroHeading}</h1>
           <TypingText />
-          <p className="hero-support">
-            As I like to be unique, I built this creative portfolio block by
-            block with my own idea bits.
-          </p>
+          <p className="hero-support">{content.heroIntroduction}</p>
           <p className="role">
             Full-Stack Developer <b>·</b> Creative Designer <b>·</b> Passionate
             Learner
@@ -74,7 +70,7 @@ export function Hero() {
           </div>
           <p className="location">
             <MapPin aria-hidden="true" />
-            Based in Sri Lanka · Open to remote opportunities
+            {content.location} · Open to remote opportunities
           </p>
         </div>
         <AvatarSequence />
