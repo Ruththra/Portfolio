@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProject, projects } from "@/data/projects";
+import { getProject, projects } from "@/features/projects/projects.data";
 export const dynamicParams = false;
 export function generateStaticParams() {
   return projects.filter((p) => !p.placeholder).map(({ slug }) => ({ slug }));

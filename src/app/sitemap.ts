@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { projects } from "@/data/projects";
-import { publishedBlogs } from "@/data/blogs";
+import { projects } from "@/features/projects/projects.data";
+import { publishedBlogs } from "@/features/blog/blog.data";
 export default function sitemap(): MetadataRoute.Sitemap {
   if (!siteConfig.siteUrl) return [];
   const paths = [

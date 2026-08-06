@@ -1,7 +1,7 @@
 import { Github, Linkedin, Mail, MapPin, Radio } from "lucide-react";
 import { siteConfig } from "@/config/site";
-import { ContactForm } from "./contact-form";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { ContactForm } from "@/features/contact/components/ContactForm";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 export function Contact() {
   const cards = [

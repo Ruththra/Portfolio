@@ -1,5 +1,5 @@
 import { Braces, Database, GraduationCap, Layers3 } from "lucide-react";
-import { SectionHeading } from "@/components/ui/section-heading";
+import { SectionHeading } from "@/components/ui/SectionHeading";
 
 const highlights = [
   ["CSE Undergraduate", GraduationCap],

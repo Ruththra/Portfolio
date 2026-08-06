@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   ArrowDown,
@@ -12,8 +10,8 @@ import {
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 import { hasUrl } from "@/lib/utils";
-import { TypingText } from "@/components/animations/typing-text";
-import { AvatarSequence } from "@/components/animations/avatar-scene";
+import { TypingText } from "@/components/animations/TypingText";
+import { AvatarSequence } from "@/features/avatar/components/AvatarScene";
 
 export function Hero() {
   const socials = [

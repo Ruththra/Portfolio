@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 import "./globals.css";
-import { Navbar } from "@/components/layout/navbar";
-import { Footer } from "@/components/layout/footer";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
 import { siteConfig } from "@/config/site";
-import { SwiftGlowingCursor } from "@/components/animations/swift-glowing-cursor";
+import { SwiftGlowingCursor } from "@/components/animations/SwiftGlowingCursor";
 
 const display = Sora({
   subsets: ["latin"],

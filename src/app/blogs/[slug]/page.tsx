@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { blogs, getBlog } from "@/data/blogs";
+import { blogs, getBlog } from "@/features/blog/blog.data";
 export const dynamicParams = false;
 export function generateStaticParams() {
   return blogs.filter((p) => p.published).map(({ slug }) => ({ slug }));
