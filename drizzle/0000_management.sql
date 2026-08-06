@@ -1,0 +1,12 @@
+CREATE TABLE "users" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "email" text NOT NULL, "password_hash" text NOT NULL, "role" text NOT NULL DEFAULT 'admin', "created_at" timestamptz NOT NULL DEFAULT now());
+CREATE UNIQUE INDEX "users_email_unique" ON "users" ("email");
+CREATE TABLE "sessions" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "user_id" uuid NOT NULL REFERENCES "users"("id") ON DELETE CASCADE, "token_hash" text NOT NULL, "expires_at" timestamptz NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now());
+CREATE UNIQUE INDEX "sessions_token_unique" ON "sessions" ("token_hash");
+CREATE INDEX "sessions_user_idx" ON "sessions" ("user_id");
+CREATE TABLE "login_attempts" ("key" text PRIMARY KEY, "count" text NOT NULL DEFAULT '0', "window_started_at" timestamptz NOT NULL DEFAULT now());
+CREATE TABLE "blog_posts" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "title" text NOT NULL, "slug" text NOT NULL, "excerpt" text NOT NULL, "content" text NOT NULL, "cover_image" text, "cover_image_alt" text, "author_name" text NOT NULL, "category" text NOT NULL, "tags" jsonb NOT NULL DEFAULT '[]', "status" text NOT NULL DEFAULT 'draft', "featured" boolean NOT NULL DEFAULT false, "seo_title" text, "seo_description" text, "canonical_url" text, "social_image" text, "created_at" timestamptz NOT NULL DEFAULT now(), "updated_at" timestamptz NOT NULL DEFAULT now(), "published_at" timestamptz);
+CREATE UNIQUE INDEX "blog_posts_slug_unique" ON "blog_posts" ("slug");
+CREATE INDEX "blog_posts_status_published_idx" ON "blog_posts" ("status", "published_at");
+CREATE TABLE "portfolio_content" ("key" text PRIMARY KEY, "value" jsonb NOT NULL, "updated_at" timestamptz NOT NULL DEFAULT now());
+CREATE TABLE "media" ("id" uuid PRIMARY KEY DEFAULT gen_random_uuid(), "url" text NOT NULL, "pathname" text NOT NULL, "alt" text NOT NULL, "mime_type" text NOT NULL, "size" text NOT NULL, "created_at" timestamptz NOT NULL DEFAULT now());
+CREATE UNIQUE INDEX "media_url_unique" ON "media" ("url");

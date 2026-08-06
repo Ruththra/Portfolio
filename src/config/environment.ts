@@ -16,6 +16,10 @@ const environmentSchema = z
     CONTACT_FROM_EMAIL: optionalValue,
     TURNSTILE_SECRET_KEY: optionalValue,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalValue,
+    DATABASE_URL: optionalValue,
+    BLOB_READ_WRITE_TOKEN: optionalValue,
+    ADMIN_SEED_EMAIL: optionalValue,
+    ADMIN_SEED_PASSWORD: optionalValue,
   })
   .superRefine((environment, context) => {
     const emailValues = [
