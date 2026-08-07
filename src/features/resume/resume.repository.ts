@@ -70,6 +70,16 @@ export async function selectResume(id: string) {
   });
 }
 
+export async function renameResume(id: string, fileName: string) {
+  return (
+    await requireDb()
+      .update(resumes)
+      .set({ fileName })
+      .where(eq(resumes.id, id))
+      .returning()
+  )[0];
+}
+
 export async function removeResume(id: string) {
   return (
     await requireDb().delete(resumes).where(eq(resumes.id, id)).returning()

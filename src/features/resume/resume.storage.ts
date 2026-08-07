@@ -64,4 +64,12 @@ export async function createResumeDownloadUrl(path: string, fileName: string) {
   return result.data.signedUrl;
 }
 
+export async function createResumeViewUrl(path: string) {
+  const result = await getResumeStorage()
+    .from(RESUME_BUCKET)
+    .createSignedUrl(path, 60);
+  if (result.error) throw result.error;
+  return result.data.signedUrl;
+}
+
 export { MAX_RESUME_SIZE };
