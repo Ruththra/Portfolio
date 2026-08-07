@@ -65,10 +65,16 @@ export async function Hero() {
           </p>
         </div>
         <AvatarSequence />
-        <a className="scroll-cue" href="#skills">
-          <Mouse aria-hidden="true" />
-          Scroll to explore
-          <ArrowDown aria-hidden="true" />
+        <a
+          className="scroll-cue"
+          href="#skills"
+          aria-label="Scroll to skills"
+          title="Scroll to skills"
+        >
+          <span className="scroll-cue-icons" aria-hidden="true">
+            <Mouse />
+            <ArrowDown />
+          </span>
         </a>
       </div>
     </section>

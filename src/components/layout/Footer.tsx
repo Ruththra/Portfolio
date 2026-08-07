@@ -5,34 +5,47 @@ import { siteConfig } from "@/config/site";
 export function Footer() {
   return (
     <footer className="footer">
-      <div>
-        <Link href="/#home" className="brand">
-          <span>RS</span>
-          <strong>Ruththra</strong>
-        </Link>
-        <p>
-          Building thoughtful software, intelligent systems, and expressive
-          digital experiences.
-        </p>
+      <div className="footer-main">
+        <div className="footer-brand">
+          <Link href="/#home" className="brand">
+            <span>RS</span>
+            <strong>{siteConfig.brandName}</strong>
+          </Link>
+          <p>
+            Building thoughtful software, intelligent systems, and expressive
+            digital experiences.
+          </p>
+        </div>
+        <nav className="footer-links" aria-label="Footer navigation">
+          <div>
+            <h2>Navigation</h2>
+            {siteConfig.navigation.map((link) => (
+              <Link href={link.href} key={link.href}>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div>
+            <h2>Explore</h2>
+            <Link href="/projects">Projects</Link>
+            <Link href="/blogs">Blogs</Link>
+            <Link href="/resume">Resume</Link>
+          </div>
+        </nav>
       </div>
-      <nav aria-label="Footer navigation">
-        <Link href="/#skills">Skills</Link>
-        <Link href="/#about">About</Link>
-        <Link href="/projects">Projects</Link>
-        <Link href="/blogs">Blogs</Link>
-        <Link href="/privacy">Privacy</Link>
-      </nav>
-      <div className="footer-end">
-        <a href="#home" aria-label="Back to top">
-          <ArrowUp aria-hidden="true" />
-        </a>
+      <div className="footer-bottom">
         <p>
-          © {new Date().getFullYear()} {siteConfig.fullName}
+          © {new Date().getFullYear()} {siteConfig.fullName}. All rights
+          reserved.
         </p>
+        <div>
+          <Link href="/privacy">Privacy</Link>
+          <a href="#home" aria-label="Back to top" title="Back to top">
+            Back to top
+            <ArrowUp aria-hidden="true" />
+          </a>
+        </div>
       </div>
-      <p className="footer-note">
-        Built block by block with curiosity and code.
-      </p>
     </footer>
   );
 }

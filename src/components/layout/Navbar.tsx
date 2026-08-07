@@ -73,7 +73,6 @@ export function Navbar({
       <nav aria-label="Primary navigation" className="nav-inner">
         <div className="nav-main">
           <Link href="/#home" className="brand" aria-label="Ruththra home">
-            <span>RS</span>
             <strong>Ruththra</strong>
           </Link>
           <div className="desktop-links">{navLinks}</div>
