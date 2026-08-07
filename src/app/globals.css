@@ -1364,13 +1364,53 @@ a.resume:hover {
 .location {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  column-gap: 0.55rem;
+  row-gap: 0.35rem;
+  flex-wrap: wrap;
   color: var(--muted);
   font-size: 0.86rem;
   margin: 0.8rem 0 0;
 }
 .location svg {
   width: 16px;
+}
+.location > a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 0.2em;
+  transition:
+    color 0.2s ease,
+    text-decoration-color 0.2s ease;
+}
+.location > a:hover,
+.location > a:focus-visible {
+  color: var(--bright);
+  text-decoration-color: currentColor;
+}
+.remote-availability {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: 0.4rem;
+  color: var(--blue);
+}
+.remote-availability i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 9px currentColor;
+  animation: availability-dim 2.8s ease-in-out infinite;
+}
+@keyframes availability-dim {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
 }
 .avatar-stage {
   position: relative;
@@ -2152,6 +2192,10 @@ a.resume:hover {
 .contact-cards {
   display: grid;
   gap: 0.65rem;
+}
+.contact-socials {
+  align-content: start;
+  margin-top: 0;
 }
 .contact-cards > a,
 .disabled-card {

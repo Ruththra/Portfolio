@@ -119,6 +119,14 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
       <label className="check">
         <input
           type="checkbox"
+          checked={form.showRemoteAvailability}
+          onChange={(e) => field("showRemoteAvailability", e.target.checked)}
+        />{" "}
+        Show “Open to remote opportunities” on the public site
+      </label>
+      <label className="check">
+        <input
+          type="checkbox"
           checked={form.showBlog}
           onChange={(e) => field("showBlog", e.target.checked)}
         />{" "}

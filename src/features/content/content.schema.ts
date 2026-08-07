@@ -29,6 +29,7 @@ export const portfolioContentSchema = z.object({
   linkedin: externalUrl,
   github: externalUrl,
   instagram: externalUrl,
+  showRemoteAvailability: z.boolean(),
   showBlog: z.boolean(),
   showProjects: z.boolean(),
   seoDescription: z.string().trim().min(20).max(170),

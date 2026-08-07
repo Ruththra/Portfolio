@@ -56,6 +56,7 @@ describe("management security", () => {
       linkedin: "linkedin.com/in/owner",
       github: "github.com/owner",
       instagram: "instagram.com/owner",
+      showRemoteAvailability: true,
       showBlog: true,
       showProjects: true,
       seoDescription:

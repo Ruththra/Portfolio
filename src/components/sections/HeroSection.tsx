@@ -59,10 +59,23 @@ export async function Hero() {
               ),
             )}
           </div>
-          <p className="location">
+          <div className="location">
             <MapPin aria-hidden="true" />
-            {content.location} · Open to remote opportunities
-          </p>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(content.location)}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`View ${content.location} on Google Maps`}
+            >
+              {content.location}
+            </a>
+            {content.showRemoteAvailability && (
+              <span className="remote-availability">
+                <i aria-hidden="true" />
+                Open to remote opportunities
+              </span>
+            )}
+          </div>
         </div>
         <AvatarSequence />
         <a

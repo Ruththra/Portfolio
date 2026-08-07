@@ -16,6 +16,7 @@ export const defaultContent: PortfolioContent = {
   linkedin: siteConfig.socials.linkedin,
   github: siteConfig.socials.github,
   instagram: siteConfig.socials.instagram,
+  showRemoteAvailability: true,
   showBlog: true,
   showProjects: true,
   seoDescription: siteConfig.seoDescription,
