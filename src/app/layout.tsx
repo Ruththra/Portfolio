@@ -3,6 +3,7 @@ import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
 import { SiteFrame } from "@/components/layout/SiteFrame";
+import { getPortfolioContent } from "@/features/content/content.repository";
 
 const display = Sora({
   subsets: ["latin"],
@@ -39,9 +40,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const content = await getPortfolioContent();
   const structuredData = {
     "@context": "https://schema.org",
     "@graph": [
@@ -64,7 +66,14 @@ export default function RootLayout({
       className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
       <body>
-        <SiteFrame>{children}</SiteFrame>
+        <SiteFrame
+          visibility={{
+            showBlog: content.showBlog,
+            showProjects: content.showProjects,
+          }}
+        >
+          {children}
+        </SiteFrame>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

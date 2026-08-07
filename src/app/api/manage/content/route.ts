@@ -3,8 +3,12 @@ import { authorizeApi, sameOrigin } from "@/features/auth/api";
 import {
   getPortfolioContent,
   savePortfolioContent,
+  savePortfolioVisibility,
 } from "@/features/content/content.repository";
-import { portfolioContentSchema } from "@/features/content/content.schema";
+import {
+  portfolioContentSchema,
+  portfolioVisibilitySchema,
+} from "@/features/content/content.schema";
 export async function GET() {
   const auth = await authorizeApi();
   if ("response" in auth) return auth.response;
@@ -25,4 +29,17 @@ export async function PUT(request: Request) {
       { status: 400 },
     );
   return NextResponse.json(await savePortfolioContent(input.data));
+}
+export async function PATCH(request: Request) {
+  const auth = await authorizeApi();
+  if ("response" in auth) return auth.response;
+  if (!sameOrigin(request))
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  const input = portfolioVisibilitySchema.safeParse(await request.json());
+  if (!input.success)
+    return NextResponse.json(
+      { message: "Invalid visibility settings." },
+      { status: 400 },
+    );
+  return NextResponse.json(await savePortfolioVisibility(input.data));
 }

@@ -14,7 +14,7 @@ export default async function Home() {
       <Hero />
       <Skills />
       <About />
-      <FeaturedProjects />
+      {content.showProjects && <FeaturedProjects />}
       <Journey />
       {content.showBlog && <BlogPreview />}
       <Contact />

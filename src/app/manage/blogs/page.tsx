@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { listAllPosts } from "@/features/blog/blog.repository";
+import { getPortfolioContent } from "@/features/content/content.repository";
+import { VisibilityToggle } from "@/components/manage/VisibilityToggle";
 export default async function BlogsManagePage({
   searchParams,
 }: {
@@ -11,6 +13,7 @@ export default async function BlogsManagePage({
   }>;
 }) {
   const query = await searchParams;
+  const content = await getPortfolioContent();
   let posts = await listAllPosts();
   if (query.q)
     posts = posts.filter((p) =>
@@ -40,6 +43,13 @@ export default async function BlogsManagePage({
           New post
         </Link>
       </header>
+      <VisibilityToggle
+        target="blogs"
+        initial={{
+          showBlog: content.showBlog,
+          showProjects: content.showProjects,
+        }}
+      />
       <form className="filter-bar">
         <label>
           <span className="sr-only">Search posts</span>

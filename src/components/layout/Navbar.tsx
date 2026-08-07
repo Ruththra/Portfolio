@@ -5,7 +5,11 @@ import Link from "next/link";
 import { Download, FileText, Folder, Menu, X } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
-export function Navbar() {
+export function Navbar({
+  visibility = { showBlog: true, showProjects: true },
+}: {
+  visibility?: { showBlog: boolean; showProjects: boolean };
+}) {
   const [open, setOpen] = useState(false);
   const [compact, setCompact] = useState(false);
   const [active, setActive] = useState("home");
@@ -73,14 +77,18 @@ export function Navbar() {
           <div className="desktop-links">{navLinks}</div>
         </div>
         <div className="desktop-actions">
-          <Link className="nav-badge" href="/blogs">
-            <FileText aria-hidden="true" />
-            Blogs
-          </Link>
-          <Link className="nav-badge" href="/projects">
-            <Folder aria-hidden="true" />
-            Projects
-          </Link>
+          {visibility.showBlog && (
+            <Link className="nav-badge" href="/blogs">
+              <FileText aria-hidden="true" />
+              Blogs
+            </Link>
+          )}
+          {visibility.showProjects && (
+            <Link className="nav-badge" href="/projects">
+              <Folder aria-hidden="true" />
+              Projects
+            </Link>
+          )}
           {siteConfig.resumeUrl ? (
             <a className="resume" href={siteConfig.resumeUrl} download>
               <Download aria-hidden="true" />
@@ -119,12 +127,16 @@ export function Navbar() {
             aria-label="Navigation menu"
           >
             {navLinks}
-            <Link href="/blogs" onClick={() => setOpen(false)}>
-              Blogs
-            </Link>
-            <Link href="/projects" onClick={() => setOpen(false)}>
-              Projects
-            </Link>
+            {visibility.showBlog && (
+              <Link href="/blogs" onClick={() => setOpen(false)}>
+                Blogs
+              </Link>
+            )}
+            {visibility.showProjects && (
+              <Link href="/projects" onClick={() => setOpen(false)}>
+                Projects
+              </Link>
+            )}
             {siteConfig.resumeUrl ? (
               <a href={siteConfig.resumeUrl} download>
                 Download résumé

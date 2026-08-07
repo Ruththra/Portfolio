@@ -3,6 +3,8 @@ import Link from "next/link";
 import { plannedTopics } from "@/features/blog/blog.data";
 import { listPublishedPosts } from "@/features/blog/blog.repository";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { getPortfolioContent } from "@/features/content/content.repository";
+import { notFound } from "next/navigation";
 export const metadata: Metadata = {
   title: "Blog",
   description:
@@ -10,6 +12,7 @@ export const metadata: Metadata = {
 };
 export const dynamic = "force-dynamic";
 export default async function BlogsPage() {
+  if (!(await getPortfolioContent()).showBlog) notFound();
   const publishedBlogs = await listPublishedPosts();
   return (
     <div className="page-shell">

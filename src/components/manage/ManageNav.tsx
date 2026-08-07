@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   FileText,
+  Folder,
   Gauge,
   ImageIcon,
   LayoutTemplate,
@@ -10,6 +11,7 @@ import { LogoutButton } from "./LogoutButton";
 const links = [
   { href: "/manage", label: "Overview", icon: Gauge },
   { href: "/manage/blogs", label: "Blogs", icon: FileText },
+  { href: "/manage/projects", label: "Projects", icon: Folder },
   { href: "/manage/content", label: "Content", icon: LayoutTemplate },
   { href: "/manage/media", label: "Media", icon: ImageIcon },
   { href: "/manage/settings", label: "Settings", icon: Settings },

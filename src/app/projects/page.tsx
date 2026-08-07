@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { projects } from "@/features/projects/projects.data";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { getPortfolioContent } from "@/features/content/content.repository";
+import { notFound } from "next/navigation";
 export const metadata: Metadata = {
   title: "Projects",
   description:
     "Software, AI, and data project case studies by Ruththiragayan Sutharsan.",
 };
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  if (!(await getPortfolioContent()).showProjects) notFound();
   return (
     <div className="page-shell">
       <p className="eyebrow">WORK ARCHIVE</p>

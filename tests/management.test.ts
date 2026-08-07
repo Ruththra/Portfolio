@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { blogInputSchema, slugify } from "@/features/blog/blog.schema";
 import { safeReturnUrl } from "@/features/auth/auth.utils";
+import {
+  portfolioContentSchema,
+  portfolioVisibilitySchema,
+} from "@/features/content/content.schema";
 describe("management security", () => {
   it("prevents open redirects", () => {
     expect(safeReturnUrl("https://evil.example")).toBe("/manage");
@@ -30,5 +34,16 @@ describe("management security", () => {
       socialImage: "",
     });
     expect(result.success).toBe(false);
+  });
+  it("validates both public visibility controls", () => {
+    expect(
+      portfolioVisibilitySchema.safeParse({
+        showBlog: false,
+        showProjects: true,
+      }).success,
+    ).toBe(true);
+    expect(portfolioContentSchema.safeParse({ showBlog: true }).success).toBe(
+      false,
+    );
   });
 });

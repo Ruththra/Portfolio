@@ -17,20 +17,31 @@ export const defaultContent: PortfolioContent = {
   github: siteConfig.socials.github,
   instagram: siteConfig.socials.instagram,
   showBlog: true,
+  showProjects: true,
   seoDescription: siteConfig.seoDescription,
 };
 export async function getPortfolioContent(): Promise<PortfolioContent> {
   if (!db) return defaultContent;
-  const row = (
-    await db
-      .select()
-      .from(portfolioContent)
-      .where(eq(portfolioContent.key, "homepage"))
-      .limit(1)
-  )[0];
-  return row
-    ? { ...defaultContent, ...(row.value as Partial<PortfolioContent>) }
-    : defaultContent;
+  try {
+    const row = (
+      await db
+        .select()
+        .from(portfolioContent)
+        .where(eq(portfolioContent.key, "homepage"))
+        .limit(1)
+    )[0];
+    return row
+      ? { ...defaultContent, ...(row.value as Partial<PortfolioContent>) }
+      : defaultContent;
+  } catch {
+    return defaultContent;
+  }
+}
+export async function savePortfolioVisibility(
+  visibility: Pick<PortfolioContent, "showBlog" | "showProjects">,
+) {
+  const current = await getPortfolioContent();
+  return savePortfolioContent({ ...current, ...visibility });
 }
 export async function savePortfolioContent(value: PortfolioContent) {
   await requireDb()

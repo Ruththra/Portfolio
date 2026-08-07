@@ -120,7 +120,15 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
           checked={form.showBlog}
           onChange={(e) => field("showBlog", e.target.checked)}
         />{" "}
-        Show blog preview on homepage
+        Show blogs on the public site
+      </label>
+      <label className="check">
+        <input
+          type="checkbox"
+          checked={form.showProjects}
+          onChange={(e) => field("showProjects", e.target.checked)}
+        />{" "}
+        Show projects on the public site
       </label>
       {message && (
         <p className="form-alert" role="status">

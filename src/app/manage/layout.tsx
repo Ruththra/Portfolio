@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ManageNav } from "@/components/manage/ManageNav";
 import { requireAdmin } from "@/features/auth/auth";
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: { default: "Management", template: "%s · Management" },
   robots: { index: false, follow: false },

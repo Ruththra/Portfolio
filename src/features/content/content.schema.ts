@@ -14,6 +14,11 @@ export const portfolioContentSchema = z.object({
   github: z.union([z.literal(""), z.string().url()]),
   instagram: z.union([z.literal(""), z.string().url()]),
   showBlog: z.boolean(),
+  showProjects: z.boolean(),
   seoDescription: z.string().trim().min(20).max(170),
+});
+export const portfolioVisibilitySchema = portfolioContentSchema.pick({
+  showBlog: true,
+  showProjects: true,
 });
 export type PortfolioContent = z.infer<typeof portfolioContentSchema>;

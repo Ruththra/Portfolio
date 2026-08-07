@@ -6,12 +6,14 @@ import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import { getPublishedPost } from "@/features/blog/blog.repository";
 import { siteConfig } from "@/config/site";
+import { getPortfolioContent } from "@/features/content/content.repository";
 export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  if (!(await getPortfolioContent()).showBlog) return {};
   const post = await getPublishedPost((await params).slug);
   if (!post) return {};
   return {
@@ -38,6 +40,7 @@ export default async function BlogPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  if (!(await getPortfolioContent()).showBlog) notFound();
   const post = await getPublishedPost((await params).slug);
   if (!post) notFound();
   const readingTime = Math.max(
