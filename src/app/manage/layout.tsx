@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SwiftGlowingCursor } from "@/components/animations/SwiftGlowingCursor";
 import { ManageNav } from "@/components/manage/ManageNav";
 import { requireAdmin } from "@/features/auth/auth";
 export const dynamic = "force-dynamic";
@@ -15,7 +14,6 @@ export default async function ManageLayout({
   await requireAdmin();
   return (
     <div className="manage-shell">
-      <SwiftGlowingCursor />
       <a className="skip-link" href="#manage-content">
         Skip to management content
       </a>

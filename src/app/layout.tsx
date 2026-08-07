@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
+import { SwiftGlowingCursor } from "@/components/animations/SwiftGlowingCursor";
 import "./globals.css";
 import { siteConfig } from "@/config/site";
 
@@ -63,6 +64,7 @@ export default function RootLayout({
       className={`${display.variable} ${body.variable} ${mono.variable}`}
     >
       <body>
+        <SwiftGlowingCursor />
         {children}
         <script
           type="application/ld+json"
