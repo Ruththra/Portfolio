@@ -418,6 +418,37 @@ select {
   display: grid;
   gap: 1rem;
 }
+.resume-upload {
+  display: grid;
+  gap: 1rem;
+}
+.resume-upload label {
+  max-width: 36rem;
+}
+.resume-library .panel-heading {
+  margin: 2rem 0 1rem;
+}
+.resume-library .panel-heading p,
+.resume-list p {
+  color: var(--muted);
+}
+.resume-list article {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.resume-list h3 {
+  margin: 0.55rem 0 0;
+}
+.resume-list p {
+  margin: 0.35rem 0 0;
+}
+.resume-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
 .media-preview {
   max-width: 20rem;
   max-height: 14rem;
@@ -518,6 +549,10 @@ select {
   .stat-grid,
   .media-grid {
     grid-template-columns: 1fr;
+  }
+  .resume-list article {
+    align-items: flex-start;
+    flex-direction: column;
   }
   .quick-grid,
   .editor-layout,

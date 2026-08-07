@@ -8,6 +8,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const users = pgTable(
   "users",
@@ -110,4 +111,26 @@ export const media = pgTable(
   (table) => [uniqueIndex("media_url_unique").on(table.url)],
 );
 
+export const resumes = pgTable(
+  "resumes",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    fileName: text("file_name").notNull(),
+    storagePath: text("storage_path").notNull(),
+    mimeType: text("mime_type").notNull(),
+    size: text("size").notNull(),
+    selected: boolean("selected").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("resumes_storage_path_unique").on(table.storagePath),
+    uniqueIndex("resumes_single_selected")
+      .on(table.selected)
+      .where(sql`${table.selected} = true`),
+  ],
+);
+
 export type BlogRecord = typeof blogPosts.$inferSelect;
+export type ResumeRecord = typeof resumes.$inferSelect;

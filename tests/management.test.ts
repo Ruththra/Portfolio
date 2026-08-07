@@ -53,7 +53,6 @@ describe("management security", () => {
       aboutText: "A sufficiently long description for the about section.",
       email: "owner@example.com",
       location: "Colombo",
-      resumeUrl: "",
       linkedin: "linkedin.com/in/owner",
       github: "github.com/owner",
       instagram: "instagram.com/owner",

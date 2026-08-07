@@ -29,16 +29,16 @@ Next.js App Router, React, strict TypeScript, Tailwind CSS, GSAP/ScrollTrigger, 
 - `src/config/environment.ts` — centralized server-only environment parsing
 - `src/data` — shared skills and journey content
 - `src/lib` — shared pure helpers
-- `public/media/avatar` and `public/resume` — user-supplied assets
+- `public/media/avatar` — user-supplied avatar assets
 - `tests` and `e2e` — unit/component and browser smoke tests
 
 Dependency flow is `app → layout/sections → features → database/shared UI/config/lib`. Server Components are the default. Public repositories return published records only; protected pages and APIs validate the opaque database-backed administrator session independently.
 
 ### Routes
 
-Public: `/`, `/projects`, `/projects/[slug]`, `/blogs`, `/blogs/[slug]`, and `/privacy`. The only authentication entry is the intentionally unlinked `/login`. Protected routes are `/manage`, `/manage/blogs`, `/manage/blogs/new`, `/manage/blogs/[id]/edit`, `/manage/blogs/[id]/preview`, `/manage/content`, `/manage/media`, and `/manage/settings`.
+Public: `/`, `/projects`, `/projects/[slug]`, `/blogs`, `/blogs/[slug]`, `/resume`, and `/privacy`. The only authentication entry is the intentionally unlinked `/login`. Protected routes include `/manage`, the blog workspace, `/manage/content`, `/manage/media`, `/manage/resume`, and `/manage/settings`.
 
-Management APIs are `/api/auth/login`, `/api/auth/logout`, `/api/manage/blogs`, `/api/manage/blogs/[id]`, `/api/manage/preview/[id]`, `/api/manage/content`, and `/api/manage/media`. They are not public content APIs.
+Management APIs are `/api/auth/login`, `/api/auth/logout`, `/api/manage/blogs`, `/api/manage/blogs/[id]`, `/api/manage/preview/[id]`, `/api/manage/content`, `/api/manage/media`, and `/api/manage/resumes`. They are not public content APIs.
 
 ### Avatar animation
 
@@ -92,7 +92,7 @@ Turnstile is optional. Set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and `TURNSTILE_SECRE
 - Edit names, URLs, public email, site origin, and navigation in `src/config/site.ts`.
 - Add verified project records in `src/features/projects/projects.data.ts`.
 - Sign in by manually opening `/login`, then manage posts and homepage copy in the private workspace. Do not add this route to public navigation.
-- Follow `public/resume/README.md` for the résumé.
+- Manage private PDF uploads and choose the public download from **Resume** in the administrator workspace.
 - Follow `public/media/avatar/README.md` for portrait layers and transitions.
 
 Optional URLs are checked before rendering links, so empty values remain non-broken.
@@ -102,7 +102,8 @@ Optional URLs are checked before rendering links, so empty values remain non-bro
 1. Provision PostgreSQL (Vercel Postgres/Neon or another pooled, TLS-enabled PostgreSQL service), set `DATABASE_URL`, and run `pnpm db:migrate` against it.
 2. Locally set `DATABASE_URL`, `ADMIN_SEED_EMAIL`, and a random password of at least 14 characters, then run `pnpm admin:seed`. Remove the two seed credential variables afterward; the password is stored only as a bcrypt hash.
 3. Optionally create a Vercel Blob store and set `BLOB_READ_WRITE_TOKEN`. Without it, media management reports that uploads are unavailable; URL fields remain usable.
-4. Import the repository in Vercel, keep the detected Next.js settings, configure production environment variables, and deploy. Set `siteUrl` in `src/config/site.ts` to the final origin.
+4. For résumé management, set `NEXT_PUBLIC_SUPABASE_URL` and the server-only `SUPABASE_SERVICE_ROLE_KEY`. The private bucket named by `SUPABASE_RESUME_BUCKET` is created on the first upload with PDF-only and 10 MB limits.
+5. Import the repository in Vercel, keep the detected Next.js settings, configure production environment variables, and deploy. Set `siteUrl` in `src/config/site.ts` to the final origin.
 
 Database migrations should run as a controlled release step, not concurrently in every serverless function. Back up PostgreSQL using the provider's scheduled backups and point-in-time recovery; keep an independent export before destructive schema work. Blob objects require a separate provider backup/retention policy.
 
@@ -113,6 +114,7 @@ Database migrations should run as a controlled release step, not concurrently in
 - Publish/unpublish: use **Publish** or **Unpublish** in the editor. Unpublishing clears the public publication timestamp and removes the post from public queries and sitemap generation.
 - Delete: choose **Delete post** and accept the explicit irreversible confirmation.
 - Homepage: `/manage/content` changes content that belongs to the public portfolio; layout, animation, tokens, and component behavior remain code-owned.
+- Résumé: `/manage/resume` uploads PDF files to a private Supabase bucket. Select one file as public; `/resume` issues a short-lived signed download for only that selection.
 - Media: upload an allowed image up to 5 MB with meaningful alt text. Deleting an in-use asset can break its saved URL, so remove references first.
 
 ## Security notes

@@ -7,7 +7,6 @@ export const siteConfig = {
   siteUrl: "", // Add the production origin, without a trailing slash.
   seoDescription:
     "Portfolio of Ruththiragayan Sutharsan, a full-stack developer and Data Science and Engineering undergraduate.",
-  resumeUrl: "", // Place the PDF in public/resume and set this to /resume/Ruththiragayan-Sutharsan-Resume.pdf
   socials: {
     linkedin: "",
     github: "",

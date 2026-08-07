@@ -17,7 +17,11 @@ const environmentSchema = z
     TURNSTILE_SECRET_KEY: optionalValue,
     NEXT_PUBLIC_TURNSTILE_SITE_KEY: optionalValue,
     DATABASE_URL: optionalValue,
+    DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(10).optional(),
     BLOB_READ_WRITE_TOKEN: optionalValue,
+    NEXT_PUBLIC_SUPABASE_URL: optionalValue,
+    SUPABASE_SERVICE_ROLE_KEY: optionalValue,
+    SUPABASE_RESUME_BUCKET: optionalValue,
     ADMIN_SEED_EMAIL: optionalValue,
     ADMIN_SEED_PASSWORD: optionalValue,
   })

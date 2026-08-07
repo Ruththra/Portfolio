@@ -7,8 +7,10 @@ import { siteConfig } from "@/config/site";
 
 export function Navbar({
   visibility = { showBlog: true, showProjects: true },
+  resumeAvailable = false,
 }: {
   visibility?: { showBlog: boolean; showProjects: boolean };
+  resumeAvailable?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [compact, setCompact] = useState(false);
@@ -89,8 +91,8 @@ export function Navbar({
               Projects
             </Link>
           )}
-          {siteConfig.resumeUrl ? (
-            <a className="resume" href={siteConfig.resumeUrl} download>
+          {resumeAvailable ? (
+            <a className="resume" href="/resume">
               <Download aria-hidden="true" />
               Resume
             </a>
@@ -137,8 +139,8 @@ export function Navbar({
                 Projects
               </Link>
             )}
-            {siteConfig.resumeUrl ? (
-              <a href={siteConfig.resumeUrl} download>
+            {resumeAvailable ? (
+              <a href="/resume" onClick={() => setOpen(false)}>
                 Download résumé
               </a>
             ) : (

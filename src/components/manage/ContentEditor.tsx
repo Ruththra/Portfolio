@@ -76,13 +76,6 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
           />
         </label>
       </div>
-      <label>
-        Résumé URL
-        <input
-          value={form.resumeUrl}
-          onChange={(e) => field("resumeUrl", e.target.value)}
-        />
-      </label>
       <div className="form-grid">
         <label>
           LinkedIn URL

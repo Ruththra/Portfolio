@@ -26,11 +26,6 @@ export const portfolioContentSchema = z.object({
   aboutText: z.string().trim().min(20).max(5000),
   email: z.union([z.literal(""), z.string().email()]),
   location: z.string().trim().max(120),
-  resumeUrl: z.union([
-    z.literal(""),
-    z.string().url(),
-    z.string().startsWith("/"),
-  ]),
   linkedin: externalUrl,
   github: externalUrl,
   instagram: externalUrl,

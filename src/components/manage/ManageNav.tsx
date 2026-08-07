@@ -5,6 +5,7 @@ import {
   Gauge,
   ImageIcon,
   LayoutTemplate,
+  Library,
   Settings,
 } from "lucide-react";
 import { LogoutButton } from "./LogoutButton";
@@ -14,6 +15,7 @@ const links = [
   { href: "/manage/projects", label: "Projects", icon: Folder },
   { href: "/manage/content", label: "Content", icon: LayoutTemplate },
   { href: "/manage/media", label: "Media", icon: ImageIcon },
+  { href: "/manage/resume", label: "Resume", icon: Library },
   { href: "/manage/settings", label: "Settings", icon: Settings },
 ];
 export function ManageNav() {
