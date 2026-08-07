@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowDown,
   Github,
@@ -37,14 +36,6 @@ export async function Hero() {
             Full-Stack Developer <b>·</b> Creative Designer <b>·</b> Passionate
             Learner
           </p>
-          <div className="hero-actions">
-            <Link className="button primary" href="#projects">
-              View My Work <ArrowDown />
-            </Link>
-            <Link className="button secondary" href="#contact">
-              Let’s Connect
-            </Link>
-          </div>
           <div className="socials" aria-label="Social links">
             {socials.map(([label, url, Icon]) =>
               hasUrl(url) ? (
@@ -55,7 +46,7 @@ export async function Hero() {
                   target={label === "Email" ? undefined : "_blank"}
                   rel="noreferrer"
                 >
-                  <Icon />
+                  <Icon aria-hidden="true" />
                 </a>
               ) : (
                 <span
@@ -63,7 +54,7 @@ export async function Hero() {
                   aria-label={`${label} not configured`}
                   title={`${label} not configured`}
                 >
-                  <Icon />
+                  <Icon aria-hidden="true" />
                 </span>
               ),
             )}

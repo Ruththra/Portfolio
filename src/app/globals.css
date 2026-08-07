@@ -970,7 +970,6 @@ h3 {
   color: var(--blue);
   padding: 0 0.25rem;
 }
-.hero-actions,
 .socials {
   display: flex;
   flex-wrap: wrap;
@@ -1014,11 +1013,34 @@ h3 {
   color: var(--secondary);
   background: rgba(11, 22, 40, 0.55);
 }
+.socials a {
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+.socials a:hover,
+.socials a:focus-visible {
+  color: var(--cyan);
+  border-color: var(--bright);
+  background: rgba(35, 139, 255, 0.14);
+  box-shadow:
+    0 0 14px rgba(72, 207, 255, 0.7),
+    0 0 30px rgba(35, 139, 255, 0.35);
+  transform: translateY(-2px);
+}
+.socials a:hover svg,
+.socials a:focus-visible svg {
+  filter: drop-shadow(0 0 6px currentColor);
+}
 .socials span {
   opacity: 0.38;
 }
 .socials svg {
   width: 18px;
+  transition: filter 0.2s ease;
 }
 .location {
   display: flex;
@@ -1263,7 +1285,6 @@ h3 {
   margin-bottom: 1.25rem;
 }
 .capability-card,
-.highlight-grid article,
 .project-card,
 .empty-state,
 .contact-form,
@@ -1595,33 +1616,11 @@ h3 {
   font-weight: 500;
   letter-spacing: 0.04em;
 }
-.about {
-  display: grid;
-  grid-template-columns: 1.4fr 0.6fr;
-  gap: 4rem;
-  align-items: center;
-}
 .about-copy {
   color: var(--secondary);
 }
 .about-copy p + p {
   margin-top: 1.2rem;
-}
-.highlight-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-.highlight-grid article {
-  min-height: 150px;
-  padding: 1.25rem;
-}
-.highlight-grid svg {
-  color: var(--bright);
-}
-.highlight-grid h3 {
-  font-size: 1rem;
-  font-weight: 600;
 }
 .heading-row {
   display: flex;
@@ -1902,7 +1901,6 @@ h3 {
 }
 .project-card,
 .capability-card,
-.highlight-grid article,
 .contact-cards > a {
   transition:
     transform 0.25s,
@@ -1911,7 +1909,6 @@ h3 {
 }
 .project-card:hover,
 .capability-card:hover,
-.highlight-grid article:hover,
 .contact-cards > a:hover {
   transform: translateY(-3px);
   border-color: rgba(72, 167, 255, 0.55);
@@ -1931,9 +1928,6 @@ h3 {
   }
   .hero {
     gap: 1.5rem;
-  }
-  .about {
-    gap: 2rem;
   }
 }
 @media (max-width: 1023px) {
@@ -1980,7 +1974,6 @@ h3 {
     padding: 5rem 1.2rem;
   }
   .capability-grid,
-  .about,
   .project-grid,
   .contact-grid {
     grid-template-columns: 1fr;
@@ -2001,9 +1994,6 @@ h3 {
   .technology-group:nth-child(even) {
     padding: 1.25rem 0;
     border-right: 0;
-  }
-  .highlight-grid {
-    grid-template-columns: 1fr 1fr;
   }
   .heading-row {
     align-items: start;
@@ -2070,9 +2060,6 @@ h3 {
 @media (max-width: 420px) {
   .brand strong {
     display: none;
-  }
-  .highlight-grid {
-    grid-template-columns: 1fr;
   }
   .role b {
     display: none;
