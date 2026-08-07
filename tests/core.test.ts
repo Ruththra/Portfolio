@@ -3,7 +3,7 @@ import { contactSchema } from "@/features/contact/contact.schema";
 import { hasUrl, typingFrame } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { getProject } from "@/features/projects/projects.data";
-import { getBlog } from "@/features/blog/blog.data";
+import { blogInputSchema, slugify } from "@/features/blog/blog.schema";
 
 describe("core portfolio behavior", () => {
   it("types and holds Ruththra without layout-dependent values", () => {
@@ -47,6 +47,26 @@ describe("core portfolio behavior", () => {
     expect(hasUrl("javascript:alert(1)")).toBe(false);
     expect(hasUrl("not a URL")).toBe(false);
     expect(getProject("missing")).toBeUndefined();
-    expect(getBlog("missing")).toBeUndefined();
+    expect(slugify("A Safe Blog Title! ")).toBe("a-safe-blog-title");
+  });
+  it("validates and sanitizes blog-shaped input constraints", () => {
+    const parsed = blogInputSchema.safeParse({
+      title: "Good title",
+      slug: "bad slug",
+      excerpt: "A sufficiently useful excerpt.",
+      content: "Hello",
+      coverImage: "",
+      coverImageAlt: "",
+      authorName: "Author",
+      category: "Engineering",
+      tags: [],
+      status: "draft",
+      featured: false,
+      seoTitle: "",
+      seoDescription: "",
+      canonicalUrl: "",
+      socialImage: "",
+    });
+    expect(parsed.success).toBe(false);
   });
 });

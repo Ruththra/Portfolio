@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono, Manrope, Sora } from "next/font/google";
-import "./globals.css";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { siteConfig } from "@/config/site";
 import { SwiftGlowingCursor } from "@/components/animations/SwiftGlowingCursor";
+import "./globals.css";
+import { siteConfig } from "@/config/site";
 
 const display = Sora({
   subsets: ["latin"],
@@ -67,12 +65,7 @@ export default function RootLayout({
     >
       <body>
         <SwiftGlowingCursor />
-        <a href="#main-content" className="skip-link">
-          Skip to content
-        </a>
-        <Navbar />
-        <main id="main-content">{children}</main>
-        <Footer />
+        {children}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

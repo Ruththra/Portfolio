@@ -5,16 +5,18 @@ import { FeaturedProjects } from "@/components/sections/ProjectsSection";
 import { Journey } from "@/components/sections/JourneySection";
 import { BlogPreview } from "@/components/sections/BlogPreviewSection";
 import { Contact } from "@/components/sections/ContactSection";
+import { getPortfolioContent } from "@/features/content/content.repository";
 
-export default function Home() {
+export default async function Home() {
+  const content = await getPortfolioContent();
   return (
     <>
       <Hero />
       <Skills />
       <About />
-      <FeaturedProjects />
+      {content.showProjects && <FeaturedProjects />}
       <Journey />
-      <BlogPreview />
+      {content.showBlog && <BlogPreview />}
       <Contact />
     </>
   );

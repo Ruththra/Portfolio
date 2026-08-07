@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProject, projects } from "@/features/projects/projects.data";
+import { getPortfolioContent } from "@/features/content/content.repository";
 export const dynamicParams = false;
 export function generateStaticParams() {
   return projects.filter((p) => !p.placeholder).map(({ slug }) => ({ slug }));
@@ -10,6 +11,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
+  if (!(await getPortfolioContent()).showProjects) return {};
   const project = getProject((await params).slug);
   return project
     ? { title: project.title, description: project.shortDescription }
@@ -20,6 +22,7 @@ export default async function ProjectPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  if (!(await getPortfolioContent()).showProjects) notFound();
   const project = getProject((await params).slug);
   if (!project || project.placeholder) notFound();
   return (

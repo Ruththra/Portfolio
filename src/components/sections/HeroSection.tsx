@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowDown,
   Github,
@@ -8,17 +7,18 @@ import {
   MapPin,
   Mouse,
 } from "lucide-react";
-import { siteConfig } from "@/config/site";
 import { hasUrl } from "@/lib/utils";
 import { TypingText } from "@/components/animations/TypingText";
 import { AvatarSequence } from "@/features/avatar/components/AvatarScene";
+import { getPortfolioContent } from "@/features/content/content.repository";
 
-export function Hero() {
+export async function Hero() {
+  const content = await getPortfolioContent();
   const socials = [
-    ["Email", siteConfig.email ? `mailto:${siteConfig.email}` : "", Mail],
-    ["LinkedIn", siteConfig.socials.linkedin, Linkedin],
-    ["GitHub", siteConfig.socials.github, Github],
-    ["Instagram", siteConfig.socials.instagram, Instagram],
+    ["Email", content.email ? `mailto:${content.email}` : "", Mail],
+    ["LinkedIn", content.linkedin, Linkedin],
+    ["GitHub", content.github, Github],
+    ["Instagram", content.instagram, Instagram],
   ] as const;
   return (
     <section id="home" className="hero-track">
@@ -29,26 +29,13 @@ export function Hero() {
             Available for opportunities
           </p>
           <p className="greeting">Hello! I’m</p>
-          <h1>
-            Ruththiragayan <span>Sutharsan</span>
-          </h1>
+          <h1>{content.heroHeading}</h1>
           <TypingText />
-          <p className="hero-support">
-            As I like to be unique, I built this creative portfolio block by
-            block with my own idea bits.
-          </p>
+          <p className="hero-support">{content.heroIntroduction}</p>
           <p className="role">
             Full-Stack Developer <b>·</b> Creative Designer <b>·</b> Passionate
             Learner
           </p>
-          <div className="hero-actions">
-            <Link className="button primary" href="#projects">
-              View My Work <ArrowDown />
-            </Link>
-            <Link className="button secondary" href="#contact">
-              Let’s Connect
-            </Link>
-          </div>
           <div className="socials" aria-label="Social links">
             {socials.map(([label, url, Icon]) =>
               hasUrl(url) ? (
@@ -59,7 +46,7 @@ export function Hero() {
                   target={label === "Email" ? undefined : "_blank"}
                   rel="noreferrer"
                 >
-                  <Icon />
+                  <Icon aria-hidden="true" />
                 </a>
               ) : (
                 <span
@@ -67,14 +54,14 @@ export function Hero() {
                   aria-label={`${label} not configured`}
                   title={`${label} not configured`}
                 >
-                  <Icon />
+                  <Icon aria-hidden="true" />
                 </span>
               ),
             )}
           </div>
           <p className="location">
             <MapPin aria-hidden="true" />
-            Based in Sri Lanka · Open to remote opportunities
+            {content.location} · Open to remote opportunities
           </p>
         </div>
         <AvatarSequence />

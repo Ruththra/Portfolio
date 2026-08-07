@@ -1,9 +1,8 @@
-# Résumé
+# Résumé storage
 
-Place the current PDF here as `Ruththiragayan-Sutharsan-Resume.pdf`, then set:
+Résumé files are no longer served from this public directory. Configure the
+private Supabase Storage credentials described in `.env.example`, run the
+database migrations, and use **Resume** in the administrator workspace.
 
-```ts
-resumeUrl: "/resume/Ruththiragayan-Sutharsan-Resume.pdf";
-```
-
-in `src/config/site.ts`. Until then, résumé controls remain visibly disabled and never link to a missing file.
+The selected file is downloaded through `/resume` with a short-lived signed
+URL; unselected files remain private.
