@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { authorizeApi, sameOrigin } from "@/features/auth/api";
 import {
   getPortfolioContent,
@@ -28,7 +29,9 @@ export async function PUT(request: Request) {
       },
       { status: 400 },
     );
-  return NextResponse.json(await savePortfolioContent(input.data));
+  const content = await savePortfolioContent(input.data);
+  revalidatePath("/", "layout");
+  return NextResponse.json(content);
 }
 export async function PATCH(request: Request) {
   const auth = await authorizeApi();
@@ -41,5 +44,7 @@ export async function PATCH(request: Request) {
       { message: "Invalid visibility settings." },
       { status: 400 },
     );
-  return NextResponse.json(await savePortfolioVisibility(input.data));
+  const content = await savePortfolioVisibility(input.data);
+  revalidatePath("/", "layout");
+  return NextResponse.json(content);
 }

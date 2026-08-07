@@ -885,6 +885,8 @@ h3 {
 .hero-copy {
   position: relative;
   z-index: 2;
+  width: 100%;
+  max-width: 700px;
 }
 .status,
 .eyebrow {
@@ -959,12 +961,15 @@ h3 {
 }
 .hero-support {
   max-width: 640px;
+  margin: 0.25rem 0 0;
   color: var(--secondary);
   font-size: clamp(1rem, 1.4vw, 1.12rem);
   line-height: 1.7;
 }
 .role {
+  margin: 0.25rem 0 0;
   color: #d8e6fa;
+  line-height: 1.6;
 }
 .role b {
   color: var(--blue);
@@ -974,7 +979,7 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
-  margin-top: 1.5rem;
+  margin-top: 1.25rem;
 }
 .button {
   min-height: 48px;
@@ -1023,13 +1028,14 @@ h3 {
 }
 .socials a:hover,
 .socials a:focus-visible {
-  color: var(--cyan);
-  border-color: var(--bright);
-  background: rgba(35, 139, 255, 0.14);
+  color: #79e6ff;
+  border-color: #48cfff;
+  background: rgba(35, 139, 255, 0.22);
   box-shadow:
-    0 0 14px rgba(72, 207, 255, 0.7),
-    0 0 30px rgba(35, 139, 255, 0.35);
-  transform: translateY(-2px);
+    0 0 10px rgba(72, 207, 255, 0.95),
+    0 0 24px rgba(72, 207, 255, 0.65),
+    0 0 42px rgba(35, 139, 255, 0.38);
+  transform: translateY(-3px) scale(1.04);
 }
 .socials a:hover svg,
 .socials a:focus-visible svg {
@@ -1048,6 +1054,7 @@ h3 {
   gap: 0.5rem;
   color: var(--muted);
   font-size: 0.86rem;
+  margin: 0.8rem 0 0;
 }
 .location svg {
   width: 16px;

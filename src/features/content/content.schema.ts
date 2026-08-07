@@ -1,4 +1,25 @@
 import { z } from "zod";
+
+const externalUrl = z
+  .string()
+  .trim()
+  .transform((value) =>
+    value && !/^[a-z][a-z\d+.-]*:/i.test(value) ? `https://${value}` : value,
+  )
+  .pipe(
+    z.union([
+      z.literal(""),
+      z
+        .url()
+        .refine(
+          (value) => ["http:", "https:"].includes(new URL(value).protocol),
+          {
+            message: "Enter a valid HTTP or HTTPS URL.",
+          },
+        ),
+    ]),
+  );
+
 export const portfolioContentSchema = z.object({
   heroHeading: z.string().trim().min(2).max(120),
   heroIntroduction: z.string().trim().min(10).max(500),
@@ -10,9 +31,9 @@ export const portfolioContentSchema = z.object({
     z.string().url(),
     z.string().startsWith("/"),
   ]),
-  linkedin: z.union([z.literal(""), z.string().url()]),
-  github: z.union([z.literal(""), z.string().url()]),
-  instagram: z.union([z.literal(""), z.string().url()]),
+  linkedin: externalUrl,
+  github: externalUrl,
+  instagram: externalUrl,
   showBlog: z.boolean(),
   showProjects: z.boolean(),
   seoDescription: z.string().trim().min(20).max(170),

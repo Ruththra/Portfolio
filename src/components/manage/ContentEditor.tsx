@@ -19,11 +19,14 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify(form),
       });
-      const result = (await response.json()) as { message?: string };
+      const result = (await response.json()) as
+        PortfolioContent | { message?: string };
+      if (response.ok && "heroHeading" in result) setForm(result);
       setMessage(
         response.ok
           ? "Portfolio content saved."
-          : (result.message ?? "Unable to save."),
+          : (("message" in result ? result.message : undefined) ??
+              "Unable to save."),
       );
     } catch {
       setMessage("Network error. Changes were not saved.");
@@ -84,7 +87,9 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
         <label>
           LinkedIn URL
           <input
-            type="url"
+            type="text"
+            inputMode="url"
+            placeholder="linkedin.com/in/username"
             value={form.linkedin}
             onChange={(e) => field("linkedin", e.target.value)}
           />
@@ -92,7 +97,9 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
         <label>
           GitHub URL
           <input
-            type="url"
+            type="text"
+            inputMode="url"
+            placeholder="github.com/username"
             value={form.github}
             onChange={(e) => field("github", e.target.value)}
           />
@@ -100,7 +107,9 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
         <label>
           Instagram URL
           <input
-            type="url"
+            type="text"
+            inputMode="url"
+            placeholder="instagram.com/username"
             value={form.instagram}
             onChange={(e) => field("instagram", e.target.value)}
           />

@@ -46,4 +46,27 @@ describe("management security", () => {
       false,
     );
   });
+  it("normalizes social links entered without a protocol", () => {
+    const result = portfolioContentSchema.safeParse({
+      heroHeading: "Portfolio owner",
+      heroIntroduction: "A sufficiently long portfolio introduction.",
+      aboutText: "A sufficiently long description for the about section.",
+      email: "owner@example.com",
+      location: "Colombo",
+      resumeUrl: "",
+      linkedin: "linkedin.com/in/owner",
+      github: "github.com/owner",
+      instagram: "instagram.com/owner",
+      showBlog: true,
+      showProjects: true,
+      seoDescription:
+        "A sufficiently long default description for search engine previews.",
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) return;
+    expect(result.data.linkedin).toBe("https://linkedin.com/in/owner");
+    expect(result.data.github).toBe("https://github.com/owner");
+    expect(result.data.instagram).toBe("https://instagram.com/owner");
+  });
 });
