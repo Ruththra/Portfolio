@@ -119,6 +119,35 @@ const groupIcons: Record<(typeof technologyGroups)[number]["id"], LucideIcon> =
     tools: Wrench,
   };
 
+function getPyramidPosition(index: number, count: number) {
+  const rowCount = Math.ceil((Math.sqrt(8 * count + 1) - 1) / 2);
+  const rowSizes = Array.from({ length: rowCount }, (_, row) => row + 1);
+  let excess = (rowCount * (rowCount + 1)) / 2 - count;
+
+  for (let row = 1; row < rowSizes.length && excess > 0; row += 1) {
+    if (rowSizes[row] > 1) {
+      rowSizes[row] -= 1;
+      excess -= 1;
+    }
+  }
+
+  let offset = 0;
+  for (let row = 0; row < rowSizes.length; row += 1) {
+    const size = rowSizes[row];
+    if (index < offset + size) {
+      const column = index - offset;
+      const widestRow = Math.max(...rowSizes);
+      return {
+        x: (column - (size - 1) / 2) * (1.7 / Math.max(widestRow - 1, 1)),
+        y: rowCount === 1 ? 0 : -0.82 + (row / (rowCount - 1)) * 1.64,
+      };
+    }
+    offset += size;
+  }
+
+  return { x: 0, y: 0 };
+}
+
 export function Skills() {
   return (
     <ScrollRevealSection id="skills" className="section skills-section">
@@ -161,50 +190,58 @@ export function Skills() {
             Languages, frameworks, platforms, and tools I use across projects.
           </p>
         </header>
-        <div className="technology-groups">
-          {technologyGroups.map((group, groupIndex) => {
+        <div className="technology-groups technology-pyramids">
+          {technologyGroups.map((group) => {
             const CategoryIcon = groupIcons[group.id];
             return (
-              <article
-                className="technology-group skills-reveal"
-                key={group.id}
-                style={{ "--reveal-order": groupIndex + 4 } as CSSProperties}
-              >
+              <article className="technology-group" key={group.id}>
                 <header className="technology-group__header">
                   <span>
                     <CategoryIcon aria-hidden="true" />
                   </span>
                   <h3>{group.title}</h3>
                 </header>
-                <ul className="technology-list">
-                  {group.technologies.map((technology) => {
-                    const Icon = technologyIcons[technology.id];
-                    return (
-                      <li
-                        className={
-                          technology.featured
-                            ? "tech-tile tech-tile--featured"
-                            : "tech-tile"
-                        }
-                        key={technology.id}
-                        tabIndex={0}
-                        aria-label={technology.name}
-                        style={
-                          {
-                            "--tech-color": technology.color ?? "var(--cyan)",
-                          } as CSSProperties
-                        }
-                      >
-                        <span className="tech-tile__icon">
-                          <Icon aria-hidden="true" />
-                        </span>
-                        <span className="tech-tile__name">
-                          {technology.name}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div className="tech-pyramid-stage">
+                  <div className="tech-pyramid-glow" aria-hidden="true" />
+                  <ul
+                    className="tech-pyramid"
+                    aria-label={`${group.title} technologies`}
+                  >
+                    {group.technologies.map((technology, index) => {
+                      const Icon = technologyIcons[technology.id];
+                      const position = getPyramidPosition(
+                        index,
+                        group.technologies.length,
+                      );
+                      return (
+                        <li
+                          className={
+                            technology.featured
+                              ? "tech-tile tech-tile--featured"
+                              : "tech-tile"
+                          }
+                          key={technology.id}
+                          tabIndex={0}
+                          aria-label={technology.name}
+                          style={
+                            {
+                              "--pyramid-x": position.x,
+                              "--pyramid-y": position.y,
+                              "--tech-color": technology.color ?? "var(--cyan)",
+                            } as CSSProperties
+                          }
+                        >
+                          <span className="tech-tile__icon">
+                            <Icon aria-hidden="true" />
+                          </span>
+                          <span className="tech-tile__name">
+                            {technology.name}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </article>
             );
           })}
