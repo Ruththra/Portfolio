@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { projects } from "@/features/projects/projects.data";
+import { TechnologyIcon } from "@/components/icons/TechnologyIcon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getPortfolioContent } from "@/features/content/content.repository";
+import { listPublicProjects } from "@/features/projects/project.repository";
 import { notFound } from "next/navigation";
 export const metadata: Metadata = {
   title: "Projects",
@@ -11,6 +13,7 @@ export const metadata: Metadata = {
 };
 export default async function ProjectsPage() {
   if (!(await getPortfolioContent()).showProjects) notFound();
+  const projects = await listPublicProjects();
   return (
     <div className="page-shell">
       <p className="eyebrow">WORK ARCHIVE</p>
@@ -21,24 +24,37 @@ export default async function ProjectsPage() {
       </p>
       {projects.length ? (
         <div className="project-grid">
-          {projects
-            .filter((p) => !p.placeholder)
-            .map((project) => (
-              <Link
-                className="project-card"
-                href={`/projects/${project.slug}`}
-                key={project.slug}
-              >
-                <span>{project.category}</span>
-                <h2>{project.title}</h2>
-                <p>{project.shortDescription}</p>
-              </Link>
-            ))}
+          {projects.map((project) => (
+            <Link
+              className="project-card"
+              href={`/projects/${project.slug}`}
+              key={project.slug}
+            >
+              <Image
+                src={project.imageUrl}
+                alt={project.imageAlt}
+                width={640}
+                height={400}
+              />
+              <span>{project.status.replace("_", " ")}</span>
+              <h2>{project.title}</h2>
+              <p>{project.description}</p>
+              {project.techStack.length > 0 && (
+                <ul className="project-card-tech" aria-label="Tech stack">
+                  {project.techStack.map((technology) => (
+                    <li key={technology.id} title={technology.name}>
+                      <TechnologyIcon id={technology.id} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Link>
+          ))}
         </div>
       ) : (
         <EmptyState
           title="Case studies are being prepared"
-          copy="Project content has intentionally not been invented. Add verified work in src/data/projects.ts."
+          copy="Uploaded project stories will appear here in their configured order."
         />
       )}
     </div>
