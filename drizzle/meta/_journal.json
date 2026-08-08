@@ -15,6 +15,34 @@
       "when": 1786104000000,
       "tag": "0001_resume_library",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786190400000,
+      "tag": "0002_avatar_library",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1786248000000,
+      "tag": "0003_project_library",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786251600000,
+      "tag": "0004_project_linkedin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786255200000,
+      "tag": "0005_project_tech_stack",
+      "breakpoints": true
     }
   ]
 }

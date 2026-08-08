@@ -23,12 +23,17 @@ const externalUrl = z
 export const portfolioContentSchema = z.object({
   heroHeading: z.string().trim().min(2).max(120),
   heroIntroduction: z.string().trim().min(10).max(500),
+  heroRoles: z
+    .array(z.string().trim().min(2).max(60))
+    .min(1, "Add at least one hero role.")
+    .max(8, "Add no more than eight hero roles."),
   aboutText: z.string().trim().min(20).max(5000),
   email: z.union([z.literal(""), z.string().email()]),
   location: z.string().trim().max(120),
   linkedin: externalUrl,
   github: externalUrl,
   instagram: externalUrl,
+  showRemoteAvailability: z.boolean(),
   showBlog: z.boolean(),
   showProjects: z.boolean(),
   seoDescription: z.string().trim().min(20).max(170),

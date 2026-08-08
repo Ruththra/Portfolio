@@ -1,6 +1,7 @@
 import {
   boolean,
   index,
+  integer,
   jsonb,
   pgTable,
   text,
@@ -104,11 +105,17 @@ export const media = pgTable(
     alt: text("alt").notNull(),
     mimeType: text("mime_type").notNull(),
     size: text("size").notNull(),
+    selectedAvatar: boolean("selected_avatar").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
-  (table) => [uniqueIndex("media_url_unique").on(table.url)],
+  (table) => [
+    uniqueIndex("media_url_unique").on(table.url),
+    uniqueIndex("media_single_selected_avatar")
+      .on(table.selectedAvatar)
+      .where(sql`${table.selectedAvatar} = true`),
+  ],
 );
 
 export const resumes = pgTable(
@@ -132,5 +139,59 @@ export const resumes = pgTable(
   ],
 );
 
+export type ProjectFile = {
+  name: string;
+  url: string;
+  pathname: string;
+  mimeType: string;
+  size: string;
+  isPublic: boolean;
+};
+
+export type ProjectTechnology = {
+  id: string;
+  name: string;
+  iconUrl?: string;
+  iconPathname?: string;
+};
+
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: text("title").notNull(),
+    slug: text("slug").notNull(),
+    description: text("description").notNull(),
+    imageUrl: text("image_url").notNull(),
+    imagePathname: text("image_pathname").notNull(),
+    imageAlt: text("image_alt").notNull(),
+    githubUrl: text("github_url"),
+    linkedinUrl: text("linkedin_url"),
+    liveUrl: text("live_url"),
+    status: text("status").notNull().default("in_progress"),
+    sortOrder: integer("sort_order").notNull(),
+    associatedFiles: jsonb("associated_files")
+      .$type<ProjectFile[]>()
+      .notNull()
+      .default([]),
+    techStack: jsonb("tech_stack")
+      .$type<ProjectTechnology[]>()
+      .notNull()
+      .default([]),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("projects_slug_unique").on(table.slug),
+    index("projects_sort_order_idx").on(table.sortOrder),
+    index("projects_status_idx").on(table.status),
+  ],
+);
+
 export type BlogRecord = typeof blogPosts.$inferSelect;
 export type ResumeRecord = typeof resumes.$inferSelect;
+export type ProjectRecord = typeof projects.$inferSelect;

@@ -1,4 +1,5 @@
 "use client";
+import { Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import type { PortfolioContent } from "@/features/content/content.schema";
 export function ContentEditor({ initial }: { initial: PortfolioContent }) {
@@ -9,6 +10,19 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
     key: K,
     value: PortfolioContent[K],
   ) => setForm((old) => ({ ...old, [key]: value }));
+  const updateRole = (index: number, value: string) =>
+    field(
+      "heroRoles",
+      form.heroRoles.map((role, roleIndex) =>
+        roleIndex === index ? value : role,
+      ),
+    );
+  const addRole = () => field("heroRoles", [...form.heroRoles, "New role"]);
+  const removeRole = (index: number) =>
+    field(
+      "heroRoles",
+      form.heroRoles.filter((_, roleIndex) => roleIndex !== index),
+    );
   async function save(e: React.FormEvent) {
     e.preventDefault();
     setPending(true);
@@ -51,6 +65,42 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
           onChange={(e) => field("heroIntroduction", e.target.value)}
         />
       </label>
+      <fieldset className="role-editor">
+        <legend>Hero roles</legend>
+        <p>Add or edit the professional roles shown on the homepage.</p>
+        <div className="role-editor-list">
+          {form.heroRoles.map((role, index) => (
+            <div className="role-editor-row" key={index}>
+              <label>
+                <span className="sr-only">Role {index + 1}</span>
+                <input
+                  value={role}
+                  maxLength={60}
+                  onChange={(event) => updateRole(index, event.target.value)}
+                />
+              </label>
+              <button
+                type="button"
+                className="danger-button role-remove"
+                aria-label={`Remove role ${index + 1}`}
+                disabled={form.heroRoles.length === 1}
+                onClick={() => removeRole(index)}
+              >
+                <Trash2 aria-hidden="true" />
+              </button>
+            </div>
+          ))}
+        </div>
+        <button
+          type="button"
+          className="secondary-button role-add"
+          disabled={form.heroRoles.length >= 8}
+          onClick={addRole}
+        >
+          <Plus aria-hidden="true" />
+          Add role
+        </button>
+      </fieldset>
       <label>
         About text (blank lines create paragraphs)
         <textarea
@@ -115,6 +165,14 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
           value={form.seoDescription}
           onChange={(e) => field("seoDescription", e.target.value)}
         />
+      </label>
+      <label className="check">
+        <input
+          type="checkbox"
+          checked={form.showRemoteAvailability}
+          onChange={(e) => field("showRemoteAvailability", e.target.checked)}
+        />{" "}
+        Show “Open to remote opportunities” on the public site
       </label>
       <label className="check">
         <input

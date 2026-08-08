@@ -1,36 +1,18 @@
-import { Github, Linkedin, Mail, MapPin, Radio } from "lucide-react";
-import { siteConfig } from "@/config/site";
+import { Github, Instagram, Linkedin, Mail } from "lucide-react";
 import { ContactForm } from "@/features/contact/components/ContactForm";
+import { getPortfolioContent } from "@/features/content/content.repository";
+import { hasUrl } from "@/lib/utils";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 
-export function Contact() {
-  const cards = [
-    {
-      label: "Email",
-      value: siteConfig.email || "Add email in site configuration",
-      icon: Mail,
-      href: siteConfig.email ? `mailto:${siteConfig.email}` : "",
-    },
-    {
-      label: "LinkedIn",
-      value: siteConfig.socials.linkedin || "Profile not configured",
-      icon: Linkedin,
-      href: siteConfig.socials.linkedin,
-    },
-    {
-      label: "GitHub",
-      value: siteConfig.socials.github || "Profile not configured",
-      icon: Github,
-      href: siteConfig.socials.github,
-    },
-    { label: "Location", value: siteConfig.location, icon: MapPin, href: "" },
-    {
-      label: "Availability",
-      value: siteConfig.availability,
-      icon: Radio,
-      href: "",
-    },
-  ];
+export async function Contact() {
+  const content = await getPortfolioContent();
+  const socials = [
+    ["Email", content.email ? `mailto:${content.email}` : "", Mail],
+    ["LinkedIn", content.linkedin, Linkedin],
+    ["GitHub", content.github, Github],
+    ["Instagram", content.instagram, Instagram],
+  ] as const;
+
   return (
     <section id="contact" className="section contact">
       <SectionHeading
@@ -39,27 +21,28 @@ export function Contact() {
         intro="I’m open to internships, collaborations, research opportunities, and exciting software, AI, or data-driven projects. Whether you have an opportunity, an idea, or simply want to start a conversation, feel free to reach out."
       />
       <div className="contact-grid">
-        <div className="contact-cards">
-          {cards.map(({ label, value, icon: Icon, href }) => {
-            const content = (
-              <>
+        <div className="socials contact-socials" aria-label="Social links">
+          {socials.map(([label, url, Icon]) =>
+            hasUrl(url) ? (
+              <a
+                key={label}
+                href={url}
+                aria-label={label}
+                target={label === "Email" ? undefined : "_blank"}
+                rel={label === "Email" ? undefined : "noreferrer"}
+              >
                 <Icon aria-hidden="true" />
-                <span>
-                  <small>{label}</small>
-                  <strong>{value}</strong>
-                </span>
-              </>
-            );
-            return href ? (
-              <a key={label} href={href}>
-                {content}
               </a>
             ) : (
-              <div key={label} className="disabled-card">
-                {content}
-              </div>
-            );
-          })}
+              <span
+                key={label}
+                aria-label={`${label} not configured`}
+                title={`${label} not configured`}
+              >
+                <Icon aria-hidden="true" />
+              </span>
+            ),
+          )}
         </div>
         <ContactForm />
       </div>

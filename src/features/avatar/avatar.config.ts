@@ -1,5 +1,6 @@
 export const avatarAssets = {
   portrait: "/media/avatar/portrait-original.webp",
+  alt: "Portrait of Ruththiragayan Sutharsan",
   transformation: "/media/avatar/avatar-transformation.webm",
 } as const;
 
@@ -10,8 +11,8 @@ export const avatarAnimation = {
   videoFrameRate: 24,
   scrollTrigger: {
     id: "hero-avatar-video",
-    start: "center center",
-    end: "bottom bottom",
+    start: 0,
+    end: "top bottom",
     scrub: 0.6,
     anticipatePin: 1,
   },

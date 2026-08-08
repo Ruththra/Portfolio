@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
@@ -316,6 +317,7 @@ export function BlogEditor({ post = empty }: { post?: EditorPost }) {
         </button>
         {post.id && (
           <button className="danger-button" disabled={pending} onClick={remove}>
+            <Trash2 aria-hidden="true" />
             Delete post
           </button>
         )}

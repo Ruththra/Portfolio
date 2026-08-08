@@ -11,9 +11,13 @@ import { hasUrl } from "@/lib/utils";
 import { TypingText } from "@/components/animations/TypingText";
 import { AvatarSequence } from "@/features/avatar/components/AvatarScene";
 import { getPortfolioContent } from "@/features/content/content.repository";
+import { getSelectedAvatar } from "@/features/avatar/avatar.repository";
 
 export async function Hero() {
-  const content = await getPortfolioContent();
+  const [content, avatar] = await Promise.all([
+    getPortfolioContent(),
+    getSelectedAvatar(),
+  ]);
   const socials = [
     ["Email", content.email ? `mailto:${content.email}` : "", Mail],
     ["LinkedIn", content.linkedin, Linkedin],
@@ -24,18 +28,15 @@ export async function Hero() {
     <section id="home" className="hero-track">
       <div className="hero">
         <div className="hero-copy">
-          <p className="status">
-            <span />
-            Available for opportunities
-          </p>
           <p className="greeting">Hello! I’m</p>
           <h1>{content.heroHeading}</h1>
           <TypingText />
           <p className="hero-support">{content.heroIntroduction}</p>
-          <p className="role">
-            Full-Stack Developer <b>·</b> Creative Designer <b>·</b> Passionate
-            Learner
-          </p>
+          <ul className="hero-roles" aria-label="Professional roles">
+            {content.heroRoles.map((role) => (
+              <li key={role}>{role}</li>
+            ))}
+          </ul>
           <div className="socials" aria-label="Social links">
             {socials.map(([label, url, Icon]) =>
               hasUrl(url) ? (
@@ -59,16 +60,35 @@ export async function Hero() {
               ),
             )}
           </div>
-          <p className="location">
+          <div className="location">
             <MapPin aria-hidden="true" />
-            {content.location} · Open to remote opportunities
-          </p>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(content.location)}`}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`View ${content.location} on Google Maps`}
+            >
+              {content.location}
+            </a>
+            {content.showRemoteAvailability && (
+              <span className="remote-availability">
+                <i aria-hidden="true" />
+                Open to remote opportunities
+              </span>
+            )}
+          </div>
         </div>
-        <AvatarSequence />
-        <a className="scroll-cue" href="#skills">
-          <Mouse aria-hidden="true" />
-          Scroll to explore
-          <ArrowDown aria-hidden="true" />
+        <AvatarSequence portrait={avatar.url} alt={avatar.alt} />
+        <a
+          className="scroll-cue"
+          href="#skills"
+          aria-label="Scroll to skills"
+          title="Scroll to skills"
+        >
+          <span className="scroll-cue-icons" aria-hidden="true">
+            <Mouse />
+            <ArrowDown />
+          </span>
         </a>
       </div>
     </section>

@@ -22,6 +22,7 @@ const environmentSchema = z
     NEXT_PUBLIC_SUPABASE_URL: optionalValue,
     SUPABASE_SERVICE_ROLE_KEY: optionalValue,
     SUPABASE_RESUME_BUCKET: optionalValue,
+    SUPABASE_MEDIA_BUCKET: optionalValue,
     ADMIN_SEED_EMAIL: optionalValue,
     ADMIN_SEED_PASSWORD: optionalValue,
   })
