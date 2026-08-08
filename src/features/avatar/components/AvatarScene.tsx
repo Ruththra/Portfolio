@@ -9,7 +9,13 @@ import { AvatarDecorations } from "@/features/avatar/components/AvatarDecoration
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function AvatarSequence() {
+export function AvatarSequence({
+  portrait,
+  alt,
+}: {
+  portrait: string;
+  alt: string;
+}) {
   const rootRef = useRef<HTMLDivElement>(null);
   const portraitRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -180,10 +186,11 @@ export function AvatarSequence() {
       <AvatarDecorations />
       <div ref={portraitRef} className="avatar-media avatar-portrait">
         <Image
-          src={avatarAssets.portrait}
-          alt="Portrait of Ruththiragayan Sutharsan"
+          src={portrait}
+          alt={alt}
           fill
           priority
+          quality={100}
           sizes="(min-width: 1200px) 340px, (min-width: 1024px) 42vw, 90vw"
           className="avatar-media-content"
         />
@@ -194,7 +201,7 @@ export function AvatarSequence() {
         muted
         playsInline
         preload="auto"
-        poster={avatarAssets.portrait}
+        poster={portrait}
         aria-hidden="true"
       >
         <source src={avatarAssets.transformation} type="video/webm" />

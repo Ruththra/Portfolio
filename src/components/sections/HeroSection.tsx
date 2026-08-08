@@ -11,9 +11,13 @@ import { hasUrl } from "@/lib/utils";
 import { TypingText } from "@/components/animations/TypingText";
 import { AvatarSequence } from "@/features/avatar/components/AvatarScene";
 import { getPortfolioContent } from "@/features/content/content.repository";
+import { getSelectedAvatar } from "@/features/avatar/avatar.repository";
 
 export async function Hero() {
-  const content = await getPortfolioContent();
+  const [content, avatar] = await Promise.all([
+    getPortfolioContent(),
+    getSelectedAvatar(),
+  ]);
   const socials = [
     ["Email", content.email ? `mailto:${content.email}` : "", Mail],
     ["LinkedIn", content.linkedin, Linkedin],
@@ -28,10 +32,11 @@ export async function Hero() {
           <h1>{content.heroHeading}</h1>
           <TypingText />
           <p className="hero-support">{content.heroIntroduction}</p>
-          <p className="role">
-            Full-Stack Developer <b>·</b> Creative Designer <b>·</b> Passionate
-            Learner
-          </p>
+          <ul className="hero-roles" aria-label="Professional roles">
+            {content.heroRoles.map((role) => (
+              <li key={role}>{role}</li>
+            ))}
+          </ul>
           <div className="socials" aria-label="Social links">
             {socials.map(([label, url, Icon]) =>
               hasUrl(url) ? (
@@ -73,7 +78,7 @@ export async function Hero() {
             )}
           </div>
         </div>
-        <AvatarSequence />
+        <AvatarSequence portrait={avatar.url} alt={avatar.alt} />
         <a
           className="scroll-cue"
           href="#skills"

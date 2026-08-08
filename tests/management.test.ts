@@ -50,6 +50,7 @@ describe("management security", () => {
     const result = portfolioContentSchema.safeParse({
       heroHeading: "Portfolio owner",
       heroIntroduction: "A sufficiently long portfolio introduction.",
+      heroRoles: ["Engineer", "Designer"],
       aboutText: "A sufficiently long description for the about section.",
       email: "owner@example.com",
       location: "Colombo",

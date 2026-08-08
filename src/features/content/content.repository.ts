@@ -9,6 +9,11 @@ export const defaultContent: PortfolioContent = {
   heroHeading: siteConfig.fullName,
   heroIntroduction:
     "As I like to be unique, I built this creative portfolio block by block with my own idea bits.",
+  heroRoles: [
+    "Full-Stack Developer",
+    "Creative Designer",
+    "Passionate Learner",
+  ],
   aboutText:
     "I am a Computer Science and Engineering undergraduate at the University of Moratuwa, specializing in Data Science and Engineering. I am also a Full-Stack Developer who enjoys building scalable web and mobile applications using modern technologies.\n\nI am fascinated by how software, data, machine learning, deep learning, computer vision, and intelligent systems can solve real-world problems.",
   email: siteConfig.email,

@@ -5,6 +5,7 @@ import {
   CircleAlert,
   FileText,
   Pencil,
+  Trash2,
   Upload,
   X,
 } from "lucide-react";
@@ -360,6 +361,7 @@ export function ResumeManager({
                     disabled={pending}
                     onClick={() => remove(item)}
                   >
+                    <Trash2 aria-hidden="true" />
                     Delete
                   </button>
                 </div>

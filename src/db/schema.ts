@@ -104,11 +104,17 @@ export const media = pgTable(
     alt: text("alt").notNull(),
     mimeType: text("mime_type").notNull(),
     size: text("size").notNull(),
+    selectedAvatar: boolean("selected_avatar").notNull().default(false),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()
       .notNull(),
   },
-  (table) => [uniqueIndex("media_url_unique").on(table.url)],
+  (table) => [
+    uniqueIndex("media_url_unique").on(table.url),
+    uniqueIndex("media_single_selected_avatar")
+      .on(table.selectedAvatar)
+      .where(sql`${table.selectedAvatar} = true`),
+  ],
 );
 
 export const resumes = pgTable(

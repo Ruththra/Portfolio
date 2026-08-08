@@ -1,8 +1,9 @@
 import { getSessionUser } from "@/features/auth/auth";
+import { mediaStorageConfigured } from "@/features/avatar/media.storage";
 
 export default async function SettingsPage() {
   const user = await getSessionUser();
-  const storageConfigured = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+  const storageConfigured = mediaStorageConfigured();
   return (
     <>
       <header className="manage-header">

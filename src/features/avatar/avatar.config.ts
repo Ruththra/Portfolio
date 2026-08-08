@@ -1,5 +1,6 @@
 export const avatarAssets = {
   portrait: "/media/avatar/portrait-original.webp",
+  alt: "Portrait of Ruththiragayan Sutharsan",
   transformation: "/media/avatar/avatar-transformation.webm",
 } as const;
 

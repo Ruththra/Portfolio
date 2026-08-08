@@ -1,16 +1,16 @@
-import { del, put } from "@vercel/blob";
 import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { requireDb } from "@/db";
 import { media } from "@/db/schema";
 import { authorizeApi, sameOrigin } from "@/features/auth/api";
-const allowed = new Set([
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-]);
-const MAX = 5 * 1024 * 1024;
+import {
+  ALLOWED_MEDIA_TYPES,
+  deleteMediaFile,
+  MAX_MEDIA_SIZE,
+  mediaStorageConfigured,
+  uploadMediaFile,
+} from "@/features/avatar/media.storage";
+const allowed = new Set(ALLOWED_MEDIA_TYPES);
 export async function GET() {
   const auth = await authorizeApi();
   if ("response" in auth) return auth.response;
@@ -23,10 +23,10 @@ export async function POST(request: Request) {
   if ("response" in auth) return auth.response;
   if (!sameOrigin(request))
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-  if (!process.env.BLOB_READ_WRITE_TOKEN)
+  if (!mediaStorageConfigured())
     return NextResponse.json(
       {
-        message: "Media storage is not configured. Add BLOB_READ_WRITE_TOKEN.",
+        message: "Media storage is not configured.",
       },
       { status: 503 },
     );
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   if (
     !(file instanceof File) ||
     !allowed.has(file.type) ||
-    file.size > MAX ||
+    file.size > MAX_MEDIA_SIZE ||
     !alt
   )
     return NextResponse.json(
@@ -46,10 +46,10 @@ export async function POST(request: Request) {
       },
       { status: 400 },
     );
-  const blob = await put(
-    `portfolio/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "-")}`,
+  const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+  const blob = await uploadMediaFile(
+    `${crypto.randomUUID()}-${safeName}`,
     file,
-    { access: "public", addRandomSuffix: false },
   );
   const row = (
     await requireDb()
@@ -65,12 +65,41 @@ export async function POST(request: Request) {
   )[0];
   return NextResponse.json(row, { status: 201 });
 }
+export async function PATCH(request: Request) {
+  const auth = await authorizeApi();
+  if ("response" in auth) return auth.response;
+  if (!sameOrigin(request))
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+
+  const body = (await request.json().catch(() => null)) as {
+    id?: unknown;
+  } | null;
+  const id = typeof body?.id === "string" ? body.id : "";
+  if (!id)
+    return NextResponse.json({ message: "Missing media ID." }, { status: 400 });
+
+  const database = requireDb();
+  const row = (
+    await database.select().from(media).where(eq(media.id, id)).limit(1)
+  )[0];
+  if (!row) return NextResponse.json({ message: "Not found" }, { status: 404 });
+
+  await database.transaction(async (transaction) => {
+    await transaction.update(media).set({ selectedAvatar: false });
+    await transaction
+      .update(media)
+      .set({ selectedAvatar: true })
+      .where(eq(media.id, id));
+  });
+
+  return NextResponse.json({ id, selectedAvatar: true });
+}
 export async function DELETE(request: Request) {
   const auth = await authorizeApi();
   if ("response" in auth) return auth.response;
   if (!sameOrigin(request))
     return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-  if (!process.env.BLOB_READ_WRITE_TOKEN)
+  if (!mediaStorageConfigured())
     return NextResponse.json(
       { message: "Media storage is not configured." },
       { status: 503 },
@@ -82,7 +111,12 @@ export async function DELETE(request: Request) {
     await requireDb().select().from(media).where(eq(media.id, id)).limit(1)
   )[0];
   if (!row) return NextResponse.json({ message: "Not found" }, { status: 404 });
-  await del(row.url);
+  if (row.selectedAvatar)
+    return NextResponse.json(
+      { message: "Select another avatar before deleting this image." },
+      { status: 409 },
+    );
+  await deleteMediaFile(row.url, row.pathname);
   await requireDb().delete(media).where(eq(media.id, id));
   return new NextResponse(null, { status: 204 });
 }
