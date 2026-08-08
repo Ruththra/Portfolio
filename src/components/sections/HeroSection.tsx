@@ -24,10 +24,6 @@ export async function Hero() {
     <section id="home" className="hero-track">
       <div className="hero">
         <div className="hero-copy">
-          <p className="status">
-            <span />
-            Available for opportunities
-          </p>
           <p className="greeting">Hello! I’m</p>
           <h1>{content.heroHeading}</h1>
           <TypingText />

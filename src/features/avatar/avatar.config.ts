@@ -10,7 +10,7 @@ export const avatarAnimation = {
   videoFrameRate: 24,
   scrollTrigger: {
     id: "hero-avatar-video",
-    start: "center center",
+    start: 0,
     end: "top bottom",
     scrub: 0.6,
     anticipatePin: 1,
