@@ -2186,7 +2186,7 @@ a.resume:hover {
 }
 .contact-grid {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
 }
 .contact-cards {
