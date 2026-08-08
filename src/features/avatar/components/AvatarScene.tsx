@@ -70,7 +70,7 @@ export function AvatarSequence() {
               id: avatarAnimation.scrollTrigger.id,
               trigger: root,
               start: avatarAnimation.scrollTrigger.start,
-              endTrigger: document.body,
+              endTrigger: ".footer",
               end: avatarAnimation.scrollTrigger.end,
               pin: root,
               pinSpacing: false,
