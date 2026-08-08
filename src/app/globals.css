@@ -270,6 +270,14 @@ select {
   color: var(--text);
   box-shadow: inset 0 0 18px rgba(35, 139, 255, 0.12);
 }
+.manage-link[aria-current="page"] {
+  background: rgba(35, 139, 255, 0.16);
+  color: var(--text);
+  box-shadow: inset 3px 0 var(--cyan);
+}
+.manage-link svg {
+  flex: 0 0 auto;
+}
 .manage-sidebar > button {
   margin-top: auto;
 }
@@ -323,6 +331,79 @@ select {
 }
 .manage-panel {
   margin-bottom: 1rem;
+}
+.manage-loading {
+  display: grid;
+  gap: 1rem;
+}
+.manage-loading-header,
+.manage-loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.manage-loading-header {
+  min-height: 7.5rem;
+  margin-bottom: 1rem;
+}
+.manage-loading-header > div:first-child {
+  width: min(34rem, 70%);
+}
+.manage-loading-eyebrow {
+  width: 7rem;
+  height: 0.75rem;
+}
+.manage-loading-title {
+  width: min(22rem, 65%);
+  height: 2.75rem;
+}
+.manage-loading-copy {
+  width: min(30rem, 90%);
+  height: 1rem;
+}
+.manage-loading-button {
+  width: 8rem;
+  height: 44px;
+}
+.manage-loading-filters {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, 1fr);
+  gap: 0.7rem;
+}
+.manage-loading-filters .skeleton {
+  height: 44px;
+  margin: 0;
+}
+.manage-loading-table {
+  padding-block: 0.25rem;
+}
+.manage-loading-row {
+  min-height: 7rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.manage-loading-row:last-child {
+  border-bottom: 0;
+}
+.manage-loading-row > div:first-child {
+  flex: 1;
+}
+.manage-loading-status {
+  width: 5rem;
+  height: 1.25rem;
+}
+.manage-loading-row-title {
+  width: min(24rem, 65%);
+  height: 1.25rem;
+}
+.manage-loading-row-copy {
+  width: min(18rem, 50%);
+  height: 0.85rem;
+}
+.manage-loading-action {
+  width: 5rem;
+  height: 44px;
 }
 .panel-heading h2,
 .manage-panel h2 {
@@ -880,6 +961,9 @@ select {
   .filter-bar {
     grid-template-columns: 1fr 1fr;
   }
+  .manage-loading-filters {
+    grid-template-columns: 1fr 1fr;
+  }
   .manage-header {
     align-items: flex-start;
   }
@@ -896,6 +980,15 @@ select {
   }
   .filter-bar {
     grid-template-columns: 1fr;
+  }
+  .manage-loading-filters {
+    grid-template-columns: 1fr;
+  }
+  .manage-loading-header {
+    align-items: flex-start;
+  }
+  .manage-loading-header > div:first-child {
+    width: 100%;
   }
   .article-meta {
     display: grid;

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   FileText,
   Folder,
@@ -8,6 +11,7 @@ import {
   Library,
   Settings,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { LogoutButton } from "./LogoutButton";
 const links = [
   { href: "/manage", label: "Overview", icon: Gauge },
@@ -19,18 +23,46 @@ const links = [
   { href: "/manage/settings", label: "Settings", icon: Settings },
 ];
 export function ManageNav() {
+  const pathname = usePathname();
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+
+  useEffect(() => setPendingHref(null), [pathname]);
+
   return (
     <aside className="manage-sidebar">
       <Link href="/manage" className="manage-brand">
         RS <span>Studio</span>
       </Link>
       <nav aria-label="Management navigation">
-        {links.map(({ href, label, icon: Icon }) => (
-          <Link className="manage-link" href={href} key={href}>
-            <Icon aria-hidden="true" />
-            {label}
-          </Link>
-        ))}
+        {links.map(({ href, label, icon: Icon }) => {
+          const isActive =
+            href === "/manage"
+              ? pathname === href
+              : pathname === href || pathname.startsWith(`${href}/`);
+          const isSelected = pendingHref ? pendingHref === href : isActive;
+
+          return (
+            <Link
+              className="manage-link"
+              href={href}
+              key={href}
+              aria-current={isSelected ? "page" : undefined}
+              onClick={(event) => {
+                if (
+                  !isActive &&
+                  !event.metaKey &&
+                  !event.ctrlKey &&
+                  !event.shiftKey &&
+                  !event.altKey
+                )
+                  setPendingHref(href);
+              }}
+            >
+              <Icon aria-hidden="true" />
+              {label}
+            </Link>
+          );
+        })}
       </nav>
       <LogoutButton />
     </aside>
