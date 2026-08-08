@@ -32,6 +32,7 @@ export function AvatarSequence({
     video.currentTime = 0;
     gsap.set(video, { autoAlpha: 0 });
     gsap.set(portrait, { autoAlpha: 1 });
+    gsap.set(root.querySelector(".avatar-name-reveal"), { yPercent: 20 });
 
     const loadingTimer = window.setTimeout(() => {
       if (video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
@@ -59,6 +60,7 @@ export function AvatarSequence({
         }
 
         let timeline: gsap.core.Timeline | undefined;
+        let nameTween: gsap.core.Tween | undefined;
 
         const initializeTimeline = () => {
           if (timeline || !Number.isFinite(video.duration)) return;
@@ -85,6 +87,25 @@ export function AvatarSequence({
               invalidateOnRefresh: true,
             },
           });
+
+          const name = root.querySelector(".avatar-name-reveal");
+          if (name) {
+            nameTween = gsap.fromTo(
+              name,
+              { yPercent: 20 },
+              {
+                yPercent: -160,
+                ease: "none",
+                scrollTrigger: {
+                  trigger: ".hero-track",
+                  start: "bottom 92%",
+                  end: "bottom 65%",
+                  scrub: avatarAnimation.scrollTrigger.scrub,
+                  invalidateOnRefresh: true,
+                },
+              },
+            );
+          }
 
           timeline
             .to(
@@ -161,6 +182,7 @@ export function AvatarSequence({
 
         return () => {
           video.removeEventListener("loadedmetadata", initializeTimeline);
+          nameTween?.kill();
           timeline?.kill();
         };
       },
@@ -182,39 +204,44 @@ export function AvatarSequence({
   }, []);
 
   return (
-    <div ref={rootRef} className="avatar-stage">
-      <AvatarDecorations />
-      <div ref={portraitRef} className="avatar-media avatar-portrait">
-        <Image
-          src={portrait}
-          alt={alt}
-          fill
-          priority
-          quality={100}
-          sizes="(min-width: 1200px) 340px, (min-width: 1024px) 42vw, 90vw"
-          className="avatar-media-content"
-        />
+    <div ref={rootRef} className="avatar-pin">
+      <span className="avatar-name-reveal" aria-hidden="true">
+        RUTHTHRA
+      </span>
+      <div className="avatar-stage">
+        <AvatarDecorations />
+        <div ref={portraitRef} className="avatar-media avatar-portrait">
+          <Image
+            src={portrait}
+            alt={alt}
+            fill
+            priority
+            quality={100}
+            sizes="(min-width: 1200px) 340px, (min-width: 1024px) 42vw, 90vw"
+            className="avatar-media-content"
+          />
+        </div>
+        <video
+          ref={videoRef}
+          className="avatar-media avatar-media-content avatar-video"
+          muted
+          playsInline
+          preload="auto"
+          poster={portrait}
+          aria-hidden="true"
+        >
+          <source src={avatarAssets.transformation} type="video/webm" />
+        </video>
+        <div className="sweep" aria-hidden="true" />
+        {showLoading && (
+          <span className="avatar-loading" aria-hidden="true">
+            Loading animation…
+          </span>
+        )}
+        <span className="float-badge code">Code</span>
+        <span className="float-badge design">Design</span>
+        <span className="float-badge build">Build</span>
       </div>
-      <video
-        ref={videoRef}
-        className="avatar-media avatar-media-content avatar-video"
-        muted
-        playsInline
-        preload="auto"
-        poster={portrait}
-        aria-hidden="true"
-      >
-        <source src={avatarAssets.transformation} type="video/webm" />
-      </video>
-      <div className="sweep" aria-hidden="true" />
-      {showLoading && (
-        <span className="avatar-loading" aria-hidden="true">
-          Loading animation…
-        </span>
-      )}
-      <span className="float-badge code">Code</span>
-      <span className="float-badge design">Design</span>
-      <span className="float-badge build">Build</span>
     </div>
   );
 }

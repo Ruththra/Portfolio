@@ -1670,14 +1670,16 @@ h3 {
   z-index: 50;
   top: 0;
   width: 100%;
-  padding: 1rem 4vw;
+  padding: 1rem 0;
   transition: 0.25s;
 }
 .navbar.compact {
   padding-top: 0.5rem;
 }
 .nav-inner {
-  max-width: 1320px;
+  width: 100%;
+  max-width: var(--max);
+  padding-inline: 2rem;
   margin: auto;
   display: flex;
   justify-content: space-between;
@@ -2123,12 +2125,19 @@ a.resume:hover {
     opacity: 0.2;
   }
 }
-.avatar-stage {
+.avatar-pin {
   position: relative;
   isolation: isolate;
   width: 100%;
   aspect-ratio: 4/5;
   max-height: 650px;
+  overflow: visible;
+}
+.avatar-stage {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 2.2rem;
@@ -2143,8 +2152,28 @@ a.resume:hover {
     inset 0 0 80px rgba(35, 139, 255, 0.1),
     0 30px 80px rgba(0, 0, 0, 0.35);
 }
+.avatar-name-reveal {
+  position: absolute;
+  z-index: 1;
+  top: 0.9rem;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% - 1rem);
+  color: var(--text);
+  font-family: var(--font-display), var(--font-body), sans-serif;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: 0.025em;
+  text-shadow:
+    0 0 24px rgba(53, 212, 255, 0.4),
+    0 8px 32px rgba(0, 0, 0, 0.75);
+  transform: translate(-50%, 20%);
+  will-change: transform;
+  pointer-events: none;
+}
 @media (min-width: 1200px) {
-  .avatar-stage {
+  .avatar-pin {
     justify-self: end;
     width: min(100%, 340px);
     max-height: min(425px, calc(100svh - 11rem));
@@ -2159,6 +2188,8 @@ a.resume:hover {
   inset: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  border-radius: inherit;
 }
 .avatar-portrait {
   background: #07101f;
@@ -3213,12 +3244,17 @@ a.resume:hover {
     gap: 1.5rem;
   }
 }
+@media (max-width: 1199px) {
+  .avatar-name-reveal {
+    display: none;
+  }
+}
 @media (max-width: 1023px) {
   .hero {
     min-height: auto;
     grid-template-columns: 1fr;
   }
-  .avatar-stage {
+  .avatar-pin {
     grid-row: 2;
     width: min(100%, 620px);
     margin-inline: auto;
@@ -3228,8 +3264,11 @@ a.resume:hover {
   .navbar {
     padding: 0.7rem 1rem;
   }
+  .nav-inner {
+    padding-inline: 0;
+  }
   .nav-main {
-    padding: 0.25rem;
+    display: none;
   }
   .desktop-links {
     display: none;
@@ -3246,7 +3285,7 @@ a.resume:hover {
     font-size: clamp(2.5rem, 12vw, 4rem);
     letter-spacing: -0.05em;
   }
-  .avatar-stage {
+  .avatar-pin {
     grid-row: 2;
     max-height: 540px;
   }
@@ -3380,7 +3419,7 @@ a.resume:hover {
   .typing i {
     opacity: 1;
   }
-  .avatar-stage {
+  .avatar-pin {
     transform: none !important;
   }
   .avatar-video,
