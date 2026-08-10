@@ -4,6 +4,7 @@ import { hasUrl, typingFrame } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import { getProject } from "@/features/projects/projects.data";
 import { blogInputSchema, slugify } from "@/features/blog/blog.schema";
+import { paginate } from "@/lib/pagination";
 
 describe("core portfolio behavior", () => {
   it("types and holds Ruththra without layout-dependent values", () => {
@@ -68,5 +69,17 @@ describe("core portfolio behavior", () => {
       socialImage: "",
     });
     expect(parsed.success).toBe(false);
+  });
+  it("paginates public archive items three at a time", () => {
+    expect(paginate([1, 2, 3, 4, 5, 6, 7], "2")).toEqual({
+      items: [4, 5, 6],
+      page: 2,
+      totalPages: 3,
+    });
+    expect(paginate([1, 2, 3, 4], "99")).toEqual({
+      items: [4],
+      page: 2,
+      totalPages: 2,
+    });
   });
 });

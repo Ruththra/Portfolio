@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
-import { TechnologyIcon } from "@/components/icons/TechnologyIcon";
 import { listPublicProjects } from "@/features/projects/project.repository";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { FeaturedProjectsCarousel } from "./FeaturedProjectsCarousel";
 
 export async function FeaturedProjects() {
-  const featuredProjects = (await listPublicProjects()).slice(0, 4);
+  const featuredProjects = await listPublicProjects();
   return (
     <section id="projects" className="section">
       <div className="heading-row">
@@ -17,41 +16,11 @@ export async function FeaturedProjects() {
           intro="A growing collection of software, AI, and data work—documented with the decisions behind it."
         />
         <Link href="/projects">
-          View all <ArrowUpRight />
+          View all <ArrowUpRight aria-hidden="true" />
         </Link>
       </div>
       {featuredProjects.length ? (
-        <div className="project-grid">
-          {featuredProjects.map((project) => (
-            <Link
-              href={`/projects/${project.slug}`}
-              key={project.slug}
-              className="project-card"
-            >
-              <Image
-                src={project.imageUrl}
-                alt={project.imageAlt}
-                width={640}
-                height={400}
-              />
-              <span>{project.status.replace("_", " ")}</span>
-              <h3>{project.title}</h3>
-              {project.subtitle && (
-                <p className="project-card-subtitle">{project.subtitle}</p>
-              )}
-              <p>{project.description}</p>
-              {project.techStack.length > 0 && (
-                <ul className="project-card-tech" aria-label="Tech stack">
-                  {project.techStack.slice(0, 5).map((technology) => (
-                    <li key={technology.id} title={technology.name}>
-                      <TechnologyIcon id={technology.id} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Link>
-          ))}
-        </div>
+        <FeaturedProjectsCarousel projects={featuredProjects} />
       ) : (
         <EmptyState
           title="Case studies are being prepared"
