@@ -1,7 +1,7 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import type { ProjectFile, ProjectTechnology } from "@/db/schema";
-import { technologyGroups } from "@/data/skills";
+import { technologyGroups, type Technology } from "@/data/skills";
 import { authorizeApi, sameOrigin } from "@/features/auth/api";
 import { slugify } from "@/features/blog/blog.schema";
 import {
@@ -26,7 +26,7 @@ import {
 
 const statuses = new Set(["planned", "in_progress", "completed", "archived"]);
 const MAX_TECHNOLOGIES = 20;
-const technologyCatalog = new Map(
+const technologyCatalog = new Map<string, Technology>(
   technologyGroups.flatMap((group) =>
     group.technologies.map(
       (technology) => [technology.id, technology] as const,
@@ -70,6 +70,7 @@ export async function POST(request: Request) {
 
   const form = await request.formData();
   const title = String(form.get("title") ?? "").trim();
+  const subtitle = String(form.get("subtitle") ?? "").trim();
   const slug = slugify(title);
   const description = String(form.get("description") ?? "").trim();
   const imageAlt = String(form.get("imageAlt") ?? "").trim();
@@ -93,6 +94,11 @@ export async function POST(request: Request) {
   if (title.length < 2 || title.length > 120 || !slug)
     return NextResponse.json(
       { message: "Enter a project title between 2 and 120 characters." },
+      { status: 400 },
+    );
+  if (subtitle.length < 2 || subtitle.length > 180)
+    return NextResponse.json(
+      { message: "Enter a project subtitle between 2 and 180 characters." },
       { status: 400 },
     );
   if (description.length < 10 || description.length > 5000)
@@ -199,6 +205,7 @@ export async function POST(request: Request) {
     }
     const project = await addProject({
       title,
+      subtitle,
       slug,
       description,
       imageUrl: imageUpload.url,
@@ -269,6 +276,39 @@ export async function PATCH(request: Request) {
     return NextResponse.json({
       data: project,
       message: `Document is now ${body.isPublic ? "public" : "private"}.`,
+    });
+  }
+
+  if (body?.action === "file_delete") {
+    const pathname = typeof body.pathname === "string" ? body.pathname : "";
+    if (!id || !pathname)
+      return NextResponse.json(
+        { message: "Provide a project file to delete." },
+        { status: 400 },
+      );
+    const current = await getProjectById(id);
+    if (!current)
+      return NextResponse.json(
+        { message: "Project not found." },
+        { status: 404 },
+      );
+    const file = current.associatedFiles.find(
+      (item) => item.pathname === pathname,
+    );
+    if (!file)
+      return NextResponse.json(
+        { message: "Associated file not found." },
+        { status: 404 },
+      );
+    await deleteProjectFile(file.url, file.pathname);
+    const project = await updateProjectFiles(
+      id,
+      current.associatedFiles.filter((item) => item.pathname !== pathname),
+    );
+    revalidatePath("/", "layout");
+    return NextResponse.json({
+      data: project,
+      message: "Document deleted successfully.",
     });
   }
 

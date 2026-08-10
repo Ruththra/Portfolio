@@ -62,8 +62,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${display.variable} ${body.variable} ${mono.variable}`}
+      data-scroll-behavior="smooth"
     >
-      <body>
+      <body suppressHydrationWarning>
         <SwiftGlowingCursor />
         {children}
         <script

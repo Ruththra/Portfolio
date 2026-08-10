@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { TechnologyIcon } from "@/components/icons/TechnologyIcon";
 import { technologyGroups } from "@/data/skills";
 import type { ProjectFile, ProjectTechnology } from "@/db/schema";
@@ -28,6 +28,7 @@ import type { ProjectFile, ProjectTechnology } from "@/db/schema";
 type ProjectItem = {
   id: string;
   title: string;
+  subtitle: string;
   slug: string;
   description: string;
   imageUrl: string;
@@ -62,7 +63,11 @@ export function ProjectManager({
   configured: boolean;
 }) {
   const router = useRouter();
+  const imageInput = useRef<HTMLInputElement>(null);
+  const filesInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState(false);
+  const [imageDragging, setImageDragging] = useState(false);
+  const [filesDragging, setFilesDragging] = useState(false);
   const [imagePreview, setImagePreview] = useState("");
   const [imageName, setImageName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<
@@ -103,6 +108,50 @@ export function ProjectManager({
 
   function notify(message: string, type: Notification["type"]) {
     setNotification({ message, type });
+  }
+
+  function setInputFiles(input: HTMLInputElement, files: readonly File[]) {
+    const transfer = new DataTransfer();
+    files.forEach((file) => transfer.items.add(file));
+    input.files = transfer.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function selectImage(file: File) {
+    if (!configured || pending || !imageInput.current) return;
+    if (
+      !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(
+        file.type,
+      )
+    ) {
+      notify("Drop a JPEG, PNG, WebP, or AVIF image.", "error");
+      return;
+    }
+    setInputFiles(imageInput.current, [file]);
+  }
+
+  function removeSelectedImage() {
+    if (imageInput.current) setInputFiles(imageInput.current, []);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview("");
+    setImageName("");
+  }
+
+  function selectAssociatedFiles(files: readonly File[]) {
+    if (!configured || pending || !filesInput.current) return;
+    setInputFiles(filesInput.current, files.slice(0, 8));
+  }
+
+  function removeSelectedFile(index: number) {
+    if (!filesInput.current) return;
+    const transfer = new DataTransfer();
+    Array.from(filesInput.current.files ?? []).forEach((file, itemIndex) => {
+      if (itemIndex !== index) transfer.items.add(file);
+    });
+    filesInput.current.files = transfer.files;
+    setSelectedFiles((current) =>
+      current.filter((_, itemIndex) => itemIndex !== index),
+    );
   }
 
   async function upload(event: React.FormEvent<HTMLFormElement>) {
@@ -196,6 +245,34 @@ export function ProjectManager({
     }
   }
 
+  async function removeProjectFile(project: ProjectItem, file: ProjectFile) {
+    if (!confirm(`Delete ${file.name}? This cannot be undone.`)) return;
+    setPending(true);
+    setNotification(null);
+    try {
+      const response = await fetch("/api/manage/projects", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "file_delete",
+          id: project.id,
+          pathname: file.pathname,
+        }),
+      });
+      const result = (await response.json()) as { message?: string };
+      notify(
+        result.message ??
+          (response.ok ? "Document deleted." : "Document deletion failed."),
+        response.ok ? "success" : "error",
+      );
+      if (response.ok) router.refresh();
+    } catch {
+      notify("Network error. The document was not deleted.", "error");
+    } finally {
+      setPending(false);
+    }
+  }
+
   async function remove(project: ProjectItem) {
     if (!confirm(`Delete ${project.title} and all associated files?`)) return;
     setPending(true);
@@ -253,6 +330,10 @@ export function ProjectManager({
           <label>
             Project title
             <input name="title" required minLength={2} maxLength={120} />
+          </label>
+          <label>
+            Project subtitle
+            <input name="subtitle" required minLength={2} maxLength={180} />
           </label>
           <label>
             Display order
@@ -316,11 +397,29 @@ export function ProjectManager({
         </label>
 
         <div className="project-upload-grid">
-          <label className="project-dropzone">
+          <label
+            className={`project-dropzone${imageDragging ? "is-dragging" : ""}`}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              setImageDragging(true);
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node))
+                setImageDragging(false);
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              setImageDragging(false);
+              const file = event.dataTransfer.files[0];
+              if (file) selectImage(file);
+            }}
+          >
             <ImageUp aria-hidden="true" />
             <strong>{imageName || "Choose a project image"}</strong>
             <span>JPEG, PNG, WebP, or AVIF · maximum 5 MB</span>
             <input
+              ref={imageInput}
               name="image"
               type="file"
               accept="image/jpeg,image/png,image/webp,image/avif"
@@ -328,7 +427,11 @@ export function ProjectManager({
               disabled={!configured || pending}
               onChange={(event) => {
                 const file = event.currentTarget.files?.[0];
-                if (!file) return;
+                if (!file) {
+                  setImageName("");
+                  setImagePreview("");
+                  return;
+                }
                 if (imagePreview) URL.revokeObjectURL(imagePreview);
                 setImageName(file.name);
                 setImagePreview(URL.createObjectURL(file));
@@ -336,16 +439,42 @@ export function ProjectManager({
             />
           </label>
           {imagePreview && (
-            <Image
-              className="project-image-preview"
-              src={imagePreview}
-              alt="Selected project preview"
-              width={640}
-              height={400}
-              unoptimized
-            />
+            <div className="project-image-selection">
+              <Image
+                className="project-image-preview"
+                src={imagePreview}
+                alt="Selected project preview"
+                width={640}
+                height={400}
+                unoptimized
+              />
+              <button
+                className="danger-button project-image-remove"
+                type="button"
+                disabled={pending}
+                onClick={removeSelectedImage}
+              >
+                <Trash2 aria-hidden="true" /> Remove image
+              </button>
+            </div>
           )}
-          <label className="project-dropzone">
+          <label
+            className={`project-dropzone${filesDragging ? "is-dragging" : ""}`}
+            onDragEnter={(event) => {
+              event.preventDefault();
+              setFilesDragging(true);
+            }}
+            onDragOver={(event) => event.preventDefault()}
+            onDragLeave={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node))
+                setFilesDragging(false);
+            }}
+            onDrop={(event) => {
+              event.preventDefault();
+              setFilesDragging(false);
+              selectAssociatedFiles(Array.from(event.dataTransfer.files));
+            }}
+          >
             <Paperclip aria-hidden="true" />
             <strong>
               {selectedFiles.length
@@ -354,6 +483,7 @@ export function ProjectManager({
             </strong>
             <span>Up to 8 PDF, ZIP, text, CSV, JSON, or Office files</span>
             <input
+              ref={filesInput}
               name="files"
               type="file"
               accept=".pdf,.zip,.json,.txt,.csv,.docx,.pptx,.xlsx"
@@ -403,6 +533,15 @@ export function ProjectManager({
                   )}
                   {file.isPublic ? "Public" : "Private"}
                 </button>
+                <button
+                  className="danger-button project-selected-file-remove"
+                  type="button"
+                  aria-label={`Remove ${file.name}`}
+                  disabled={pending}
+                  onClick={() => removeSelectedFile(index)}
+                >
+                  <Trash2 aria-hidden="true" />
+                </button>
               </li>
             ))}
           </ul>
@@ -424,18 +563,19 @@ export function ProjectManager({
                     value={row.technologyId}
                     required
                     disabled={pending}
-                    onChange={(event) =>
+                    onChange={(event) => {
+                      const technologyId = event.currentTarget.value;
                       setTechRows((current) =>
                         current.map((item) =>
                           item.id === row.id
                             ? {
                                 ...item,
-                                technologyId: event.currentTarget.value,
+                                technologyId,
                               }
                             : item,
                         ),
-                      )
-                    }
+                      );
+                    }}
                   >
                     {technologyGroups.map((group) => (
                       <optgroup label={group.title} key={group.id}>
@@ -516,6 +656,9 @@ export function ProjectManager({
                     {statusLabels[project.status] ?? project.status}
                   </span>
                   <h3>{project.title}</h3>
+                  {project.subtitle && (
+                    <p className="project-admin-subtitle">{project.subtitle}</p>
+                  )}
                   <p>{project.description}</p>
                   {project.techStack.length > 0 && (
                     <ul className="project-tech-list" aria-label="Tech stack">
@@ -597,6 +740,15 @@ export function ProjectManager({
                             >
                               <Download aria-hidden="true" /> Download
                             </a>
+                            <button
+                              className="danger-button"
+                              type="button"
+                              aria-label={`Delete ${file.name}`}
+                              disabled={pending}
+                              onClick={() => removeProjectFile(project, file)}
+                            >
+                              <Trash2 aria-hidden="true" /> Delete
+                            </button>
                           </li>
                         );
                       })}
@@ -613,12 +765,13 @@ export function ProjectManager({
                       max={initial.length}
                       value={orders[project.id] ?? project.sortOrder}
                       disabled={pending}
-                      onChange={(event) =>
+                      onChange={(event) => {
+                        const sortOrder = Number(event.currentTarget.value);
                         setOrders((current) => ({
                           ...current,
-                          [project.id]: Number(event.currentTarget.value),
-                        }))
-                      }
+                          [project.id]: sortOrder,
+                        }));
+                      }}
                     />
                     <button
                       className="secondary-button"

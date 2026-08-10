@@ -65,6 +65,7 @@ export async function getProjectBySlug(slug: string) {
 
 export async function addProject(input: {
   title: string;
+  subtitle: string;
   slug: string;
   description: string;
   imageUrl: string;

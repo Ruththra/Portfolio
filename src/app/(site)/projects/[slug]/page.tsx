@@ -13,7 +13,10 @@ export async function generateMetadata({
   if (!(await getPortfolioContent()).showProjects) return {};
   const project = await getPublicProjectBySlug((await params).slug);
   return project
-    ? { title: project.title, description: project.description.slice(0, 160) }
+    ? {
+        title: project.title,
+        description: (project.subtitle || project.description).slice(0, 160),
+      }
     : {};
 }
 export default async function ProjectPage({
@@ -28,7 +31,7 @@ export default async function ProjectPage({
     <article className="page-shell article">
       <p className="eyebrow">{project.status.replace("_", " ")}</p>
       <h1>{project.title}</h1>
-      <p className="page-lead">{project.description}</p>
+      {project.subtitle && <p className="page-lead">{project.subtitle}</p>}
       <Image
         className="project-detail-image"
         src={project.imageUrl}
@@ -54,6 +57,13 @@ export default async function ProjectPage({
           </a>
         )}
       </div>
+      <section
+        className="project-overview"
+        aria-labelledby="project-overview-title"
+      >
+        <h2 id="project-overview-title">Overview</h2>
+        <p>{project.description}</p>
+      </section>
       {project.techStack.length > 0 && (
         <section
           className="project-tech-stack"

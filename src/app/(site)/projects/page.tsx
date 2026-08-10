@@ -38,6 +38,9 @@ export default async function ProjectsPage() {
               />
               <span>{project.status.replace("_", " ")}</span>
               <h2>{project.title}</h2>
+              {project.subtitle && (
+                <p className="project-card-subtitle">{project.subtitle}</p>
+              )}
               <p>{project.description}</p>
               {project.techStack.length > 0 && (
                 <ul className="project-card-tech" aria-label="Tech stack">

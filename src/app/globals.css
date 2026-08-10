@@ -700,7 +700,8 @@ input[type="radio"] {
     background-color 160ms ease;
 }
 .project-dropzone:hover,
-.project-dropzone:focus-within {
+.project-dropzone:focus-within,
+.project-dropzone.is-dragging {
   border-color: var(--bright);
   background: color-mix(in srgb, var(--blue) 8%, transparent);
 }
@@ -724,6 +725,23 @@ input[type="radio"] {
   object-fit: cover;
   border: 1px solid var(--border);
   border-radius: 1rem;
+}
+.project-image-selection {
+  position: relative;
+  min-width: 0;
+}
+.project-image-remove {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.6rem;
+}
+.project-image-remove svg,
+.project-selected-file-remove svg {
+  width: 1rem;
+}
+.project-selected-file-remove {
+  min-width: 44px;
+  padding-inline: 0.65rem;
 }
 .project-selected-files {
   display: flex;
@@ -867,6 +885,11 @@ input[type="radio"] {
 .project-admin-copy h3 {
   margin: 0.45rem 0 0.25rem;
 }
+.project-admin-copy .project-admin-subtitle {
+  margin: 0 0 0.35rem;
+  color: var(--secondary);
+  font-weight: 700;
+}
 .project-admin-copy > p {
   display: -webkit-box;
   margin: 0;
@@ -916,7 +939,7 @@ input[type="radio"] {
 }
 .project-document-list li {
   display: grid;
-  grid-template-columns: minmax(8rem, 1fr) auto auto;
+  grid-template-columns: minmax(8rem, 1fr) auto auto auto;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
@@ -2951,6 +2974,18 @@ a.resume:hover {
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
+}
+.project-card .project-card-subtitle {
+  color: var(--secondary);
+  font-weight: 700;
+  -webkit-line-clamp: 2;
+}
+.project-overview {
+  margin-top: 2rem;
+}
+.project-overview p {
+  color: var(--secondary);
+  white-space: pre-wrap;
 }
 .project-card-tech {
   margin: 1rem 0 0;

@@ -160,6 +160,7 @@ export const projects = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull(),
+    subtitle: text("subtitle").notNull().default(""),
     slug: text("slug").notNull(),
     description: text("description").notNull(),
     imageUrl: text("image_url").notNull(),
