@@ -26,6 +26,7 @@ export default async function BlogsManagePage({
       visibility={{
         showBlog: content.showBlog,
         showProjects: content.showProjects,
+        showResearch: content.showResearch,
       }}
     />
   );

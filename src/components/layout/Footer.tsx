@@ -28,6 +28,7 @@ export function Footer() {
           <div>
             <h2>Explore</h2>
             <Link href="/projects">Projects</Link>
+            <Link href="/research">Research</Link>
             <Link href="/blogs">Blogs</Link>
             <Link href="/resume">Resume</Link>
           </div>

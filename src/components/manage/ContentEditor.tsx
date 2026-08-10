@@ -190,6 +190,14 @@ export function ContentEditor({ initial }: { initial: PortfolioContent }) {
         />{" "}
         Show projects on the public site
       </label>
+      <label className="check">
+        <input
+          type="checkbox"
+          checked={form.showResearch}
+          onChange={(e) => field("showResearch", e.target.checked)}
+        />{" "}
+        Show research on the public site
+      </label>
       {message && (
         <p className="form-alert" role="status">
           {message}

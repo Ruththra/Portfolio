@@ -6,7 +6,11 @@ export function SiteFrame({
   resumeAvailable,
 }: {
   children: React.ReactNode;
-  visibility: { showBlog: boolean; showProjects: boolean };
+  visibility: {
+    showBlog: boolean;
+    showProjects: boolean;
+    showResearch: boolean;
+  };
   resumeAvailable: boolean;
 }) {
   return (

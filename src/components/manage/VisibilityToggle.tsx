@@ -2,17 +2,26 @@
 
 import { useState } from "react";
 
-type Visibility = { showBlog: boolean; showProjects: boolean };
+type Visibility = {
+  showBlog: boolean;
+  showProjects: boolean;
+  showResearch: boolean;
+};
 
 export function VisibilityToggle({
   initial,
   target,
 }: {
   initial: Visibility;
-  target: "blogs" | "projects";
+  target: "blogs" | "projects" | "research";
 }) {
-  const key = target === "blogs" ? "showBlog" : "showProjects";
-  const label = target === "blogs" ? "blogs" : "projects";
+  const key =
+    target === "blogs"
+      ? "showBlog"
+      : target === "projects"
+        ? "showProjects"
+        : "showResearch";
+  const label = target;
   const [visibility, setVisibility] = useState(initial);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");

@@ -6,10 +6,14 @@ import { Download, FileText, Folder, Menu, X } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export function Navbar({
-  visibility = { showBlog: true, showProjects: true },
+  visibility = { showBlog: true, showProjects: true, showResearch: true },
   resumeAvailable = false,
 }: {
-  visibility?: { showBlog: boolean; showProjects: boolean };
+  visibility?: {
+    showBlog: boolean;
+    showProjects: boolean;
+    showResearch: boolean;
+  };
   resumeAvailable?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -87,6 +91,11 @@ export function Navbar({
               Projects
             </Link>
           )}
+          {visibility.showResearch && (
+            <Link className="nav-badge" href="/research">
+              Research
+            </Link>
+          )}
           {resumeAvailable ? (
             <a className="resume" href="/resume">
               <Download aria-hidden="true" />
@@ -133,6 +142,11 @@ export function Navbar({
             {visibility.showProjects && (
               <Link href="/projects" onClick={() => setOpen(false)}>
                 Projects
+              </Link>
+            )}
+            {visibility.showResearch && (
+              <Link href="/research" onClick={() => setOpen(false)}>
+                Research
               </Link>
             )}
             {resumeAvailable ? (

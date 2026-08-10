@@ -714,10 +714,14 @@ input[type="radio"] {
   border-color: var(--bright);
   background: color-mix(in srgb, var(--blue) 8%, transparent);
 }
-.project-dropzone > svg {
+.project-dropzone > svg,
+.project-dropzone-icon > svg {
   width: 2rem;
   height: 2rem;
   color: var(--bright);
+}
+.project-dropzone-icon {
+  display: contents;
 }
 .project-dropzone input {
   position: absolute;
@@ -938,6 +942,73 @@ input[type="radio"] {
   grid-template-columns: 11.25rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
+}
+.research-admin-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: start;
+}
+.research-admin-item h3 {
+  margin-bottom: 0.25rem;
+}
+.research-admin-item p {
+  margin: 0.25rem 0;
+  color: var(--muted);
+}
+.research-card {
+  min-height: 20rem;
+  padding-top: 1.25rem;
+}
+.research-listing {
+  position: relative;
+  min-width: 0;
+}
+.research-listing .research-card {
+  height: 100%;
+  padding-bottom: 5.5rem;
+}
+.research-download {
+  position: absolute;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--blue) 14%, var(--surface));
+  color: var(--text);
+  font-weight: 700;
+}
+.research-download:hover,
+.research-download:focus-visible {
+  border-color: var(--bright);
+  color: var(--bright);
+}
+.research-download svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+.research-asset-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-block: 1rem;
+}
+.research-asset-editor form {
+  display: grid;
+  gap: 1rem;
+}
+@media (max-width: 800px) {
+  .research-asset-editor {
+    grid-template-columns: 1fr;
+  }
 }
 .project-admin-item > img {
   width: 11.25rem;
