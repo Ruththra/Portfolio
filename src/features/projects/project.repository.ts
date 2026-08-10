@@ -148,6 +148,43 @@ export async function updateProjectFiles(id: string, files: ProjectFile[]) {
   )[0];
 }
 
+export async function updateProjectDetails(
+  id: string,
+  input: {
+    title: string;
+    subtitle: string;
+    slug: string;
+    description: string;
+    imageAlt: string;
+    githubUrl: string | null;
+    linkedinUrl: string | null;
+    liveUrl: string | null;
+    status: string;
+    techStack: ProjectTechnology[];
+  },
+) {
+  return (
+    await requireDb()
+      .update(projects)
+      .set({ ...input, updatedAt: new Date() })
+      .where(eq(projects.id, id))
+      .returning()
+  )[0];
+}
+
+export async function updateProjectImage(
+  id: string,
+  image: { imageUrl: string; imagePathname: string; imageAlt: string },
+) {
+  return (
+    await requireDb()
+      .update(projects)
+      .set({ ...image, updatedAt: new Date() })
+      .where(eq(projects.id, id))
+      .returning()
+  )[0];
+}
+
 export async function removeProject(id: string) {
   return requireDb().transaction(async (transaction) => {
     const removed = (

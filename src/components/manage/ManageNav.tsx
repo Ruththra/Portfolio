@@ -9,6 +9,7 @@ import {
   ImageIcon,
   LayoutTemplate,
   Library,
+  ExternalLink,
   Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -64,7 +65,19 @@ export function ManageNav() {
           );
         })}
       </nav>
-      <LogoutButton />
+      <div className="manage-sidebar-actions">
+        <Link
+          className="manage-link manage-live-link"
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ExternalLink aria-hidden="true" />
+          View live site
+          <span className="sr-only"> (opens in a new tab)</span>
+        </Link>
+        <LogoutButton />
+      </div>
     </aside>
   );
 }

@@ -11,7 +11,9 @@ import {
   listProjects,
   removeProject,
   reorderProject,
+  updateProjectDetails,
   updateProjectFiles,
+  updateProjectImage,
 } from "@/features/projects/project.repository";
 import {
   deleteProjectFile,
@@ -33,10 +35,16 @@ const technologyCatalog = new Map<string, Technology>(
     ),
   ),
 );
+const technologyNameCatalog = new Map<string, Technology>(
+  [...technologyCatalog.values()].map((technology) => [
+    technology.name.toLocaleLowerCase(),
+    technology,
+  ]),
+);
 const imageTypes = new Set<string>(PROJECT_IMAGE_TYPES);
 const fileTypes = new Set<string>(PROJECT_FILE_TYPES);
 
-function optionalUrl(value: FormDataEntryValue | null) {
+function optionalUrl(value: unknown) {
   const text = String(value ?? "").trim();
   if (!text) return null;
   try {
@@ -49,6 +57,27 @@ function optionalUrl(value: FormDataEntryValue | null) {
 
 function safeFileName(name: string) {
   return name.replace(/[^a-zA-Z0-9._-]/g, "-");
+}
+
+function parseTechnologyStack(ids: string[], csv: string) {
+  const selected = new Map<string, ProjectTechnology>();
+  for (const id of ids) {
+    const technology = technologyCatalog.get(id);
+    if (technology) selected.set(id, { id, name: technology.name });
+  }
+  for (const rawName of csv.split(",")) {
+    const name = rawName.trim().replace(/\s+/g, " ");
+    if (!name) continue;
+    const known = technologyNameCatalog.get(name.toLocaleLowerCase());
+    if (known) {
+      selected.set(known.id, { id: known.id, name: known.name });
+      continue;
+    }
+    const customId = `custom-${slugify(name)}`;
+    if (customId !== "custom-")
+      selected.set(customId, { id: customId, name: name.slice(0, 60) });
+  }
+  return [...selected.values()];
 }
 
 export async function GET() {
@@ -90,6 +119,8 @@ export async function POST(request: Request) {
     .getAll("fileVisibility")
     .map((item) => String(item));
   const techIds = form.getAll("techId").map((item) => String(item));
+  const techCsv = String(form.get("techCsv") ?? "");
+  const techStack = parseTechnologyStack(techIds, techCsv);
 
   if (title.length < 2 || title.length > 120 || !slug)
     return NextResponse.json(
@@ -154,7 +185,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   if (
-    techIds.length > MAX_TECHNOLOGIES ||
+    techStack.length > MAX_TECHNOLOGIES ||
     new Set(techIds).size !== techIds.length ||
     techIds.some((id) => !technologyCatalog.has(id))
   )
@@ -192,15 +223,6 @@ export async function POST(request: Request) {
         mimeType: file.type,
         size: String(file.size),
         isPublic: fileVisibility[associatedFiles.length] !== "private",
-      });
-    }
-    const techStack: ProjectTechnology[] = [];
-    for (const id of techIds) {
-      const technology = technologyCatalog.get(id);
-      if (!technology) continue;
-      techStack.push({
-        id,
-        name: technology.name,
       });
     }
     const project = await addProject({
@@ -243,8 +265,115 @@ export async function PATCH(request: Request) {
     isPublic?: unknown;
     pathname?: unknown;
     sortOrder?: unknown;
+    title?: unknown;
+    subtitle?: unknown;
+    description?: unknown;
+    imageAlt?: unknown;
+    githubUrl?: unknown;
+    linkedinUrl?: unknown;
+    liveUrl?: unknown;
+    status?: unknown;
+    techIds?: unknown;
+    techCsv?: unknown;
   } | null;
   const id = typeof body?.id === "string" ? body.id : "";
+
+  if (body?.action === "project_update") {
+    const title = typeof body.title === "string" ? body.title.trim() : "";
+    const subtitle =
+      typeof body.subtitle === "string" ? body.subtitle.trim() : "";
+    const description =
+      typeof body.description === "string" ? body.description.trim() : "";
+    const imageAlt =
+      typeof body.imageAlt === "string" ? body.imageAlt.trim() : "";
+    const status = typeof body.status === "string" ? body.status : "";
+    const slug = slugify(title);
+    const githubUrl = optionalUrl(body.githubUrl);
+    const linkedinUrl = optionalUrl(body.linkedinUrl);
+    const liveUrl = optionalUrl(body.liveUrl);
+    const techIds = Array.isArray(body.techIds)
+      ? body.techIds.filter((item): item is string => typeof item === "string")
+      : [];
+    const techCsv = typeof body.techCsv === "string" ? body.techCsv : "";
+    const techStack = parseTechnologyStack(techIds, techCsv);
+    if (!id)
+      return NextResponse.json(
+        { message: "Provide a project to update." },
+        { status: 400 },
+      );
+    if (title.length < 2 || title.length > 120 || !slug)
+      return NextResponse.json(
+        { message: "Enter a project title between 2 and 120 characters." },
+        { status: 400 },
+      );
+    if (subtitle.length < 2 || subtitle.length > 180)
+      return NextResponse.json(
+        { message: "Enter a project subtitle between 2 and 180 characters." },
+        { status: 400 },
+      );
+    if (description.length < 10 || description.length > 5000)
+      return NextResponse.json(
+        { message: "Enter a description between 10 and 5,000 characters." },
+        { status: 400 },
+      );
+    if (!imageAlt || imageAlt.length > 240)
+      return NextResponse.json(
+        { message: "Provide concise alternative text for the project image." },
+        { status: 400 },
+      );
+    if (!statuses.has(status))
+      return NextResponse.json(
+        { message: "Choose a valid project status." },
+        { status: 400 },
+      );
+    if (
+      (body.githubUrl && !githubUrl) ||
+      (body.linkedinUrl && !linkedinUrl) ||
+      (body.liveUrl && !liveUrl)
+    )
+      return NextResponse.json(
+        { message: "Project links must be valid HTTP(S) URLs." },
+        { status: 400 },
+      );
+    if (
+      techStack.length > MAX_TECHNOLOGIES ||
+      new Set(techIds).size !== techIds.length ||
+      techIds.some((technologyId) => !technologyCatalog.has(technologyId))
+    )
+      return NextResponse.json(
+        { message: "Choose up to 20 unique technologies." },
+        { status: 400 },
+      );
+    const current = await getProjectById(id);
+    if (!current)
+      return NextResponse.json(
+        { message: "Project not found." },
+        { status: 404 },
+      );
+    const slugOwner = await getProjectBySlug(slug);
+    if (slugOwner && slugOwner.id !== id)
+      return NextResponse.json(
+        { message: "A project with this title already exists." },
+        { status: 409 },
+      );
+    const project = await updateProjectDetails(id, {
+      title,
+      subtitle,
+      slug,
+      description,
+      imageAlt,
+      githubUrl,
+      linkedinUrl,
+      liveUrl,
+      status,
+      techStack,
+    });
+    revalidatePath("/", "layout");
+    return NextResponse.json({
+      data: project,
+      message: "Project updated successfully.",
+    });
+  }
 
   if (body?.action === "file_visibility") {
     const pathname = typeof body.pathname === "string" ? body.pathname : "";
@@ -329,6 +458,80 @@ export async function PATCH(request: Request) {
     data: project,
     message: "Project order updated successfully.",
   });
+}
+
+export async function PUT(request: Request) {
+  const auth = await authorizeApi();
+  if ("response" in auth) return auth.response;
+  if (!sameOrigin(request))
+    return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+  if (!projectStorageConfigured())
+    return NextResponse.json(
+      { message: "Project file storage is not configured." },
+      { status: 503 },
+    );
+
+  const form = await request.formData();
+  const id = String(form.get("id") ?? "");
+  const imageAlt = String(form.get("imageAlt") ?? "").trim();
+  const image = form.get("image");
+  if (!id)
+    return NextResponse.json(
+      { message: "Provide a project to update." },
+      { status: 400 },
+    );
+  if (!imageAlt || imageAlt.length > 240)
+    return NextResponse.json(
+      { message: "Provide concise alternative text for the project image." },
+      { status: 400 },
+    );
+  if (
+    !(image instanceof File) ||
+    image.size === 0 ||
+    image.size > MAX_PROJECT_IMAGE_SIZE ||
+    !imageTypes.has(image.type)
+  )
+    return NextResponse.json(
+      { message: "Choose a JPEG, PNG, WebP, or AVIF image under 5 MB." },
+      { status: 400 },
+    );
+
+  const current = await getProjectById(id);
+  if (!current)
+    return NextResponse.json(
+      { message: "Project not found." },
+      { status: 404 },
+    );
+
+  const uploaded = await uploadProjectFile(
+    `${crypto.randomUUID()}-${safeFileName(image.name)}`,
+    image,
+  );
+  try {
+    const project = await updateProjectImage(id, {
+      imageUrl: uploaded.url,
+      imagePathname: uploaded.pathname,
+      imageAlt,
+    });
+    if (!project) {
+      await deleteProjectFile(uploaded.url, uploaded.pathname);
+      return NextResponse.json(
+        { message: "Project not found." },
+        { status: 404 },
+      );
+    }
+    await deleteProjectFile(current.imageUrl, current.imagePathname).catch(
+      () => null,
+    );
+    revalidatePath("/", "layout");
+    return NextResponse.json({
+      data: project,
+      message: "Project image updated successfully.",
+    });
+  } catch (error) {
+    await deleteProjectFile(uploaded.url, uploaded.pathname).catch(() => null);
+    throw error;
+  }
 }
 
 export async function DELETE(request: Request) {

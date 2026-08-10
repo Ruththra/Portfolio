@@ -12,6 +12,7 @@ import {
   Lock,
   LoaderCircle,
   Paperclip,
+  Pencil,
   Plus,
   Save,
   Trash2,
@@ -54,6 +55,34 @@ const statusLabels: Record<string, string> = {
   archived: "Archived",
 };
 const defaultTechnologyId = technologyGroups[0].technologies[0].id;
+const catalogTechnologies = technologyGroups.flatMap(
+  (group) => group.technologies,
+);
+const catalogTechnologyIds = new Set<string>(
+  catalogTechnologies.map((technology) => technology.id),
+);
+const catalogTechnologyNames = new Map(
+  catalogTechnologies.flatMap((technology) => [
+    [technology.name.toLocaleLowerCase(), technology],
+    [technology.id.toLocaleLowerCase(), technology],
+  ]),
+);
+
+function parseTechnologyCsv(csv: string) {
+  const names = new Map(
+    csv
+      .split(",")
+      .map((name) => name.trim())
+      .filter(Boolean)
+      .map((name) => [name.toLocaleLowerCase(), name] as const),
+  );
+  return [...names.values()].slice(0, 20).map((name) => {
+    const technology = catalogTechnologyNames.get(name.toLocaleLowerCase());
+    return technology
+      ? { id: technology.id, name: technology.name, known: true }
+      : { id: `custom-${name.toLocaleLowerCase()}`, name, known: false };
+  });
+}
 
 export function ProjectManager({
   initial,
@@ -65,9 +94,14 @@ export function ProjectManager({
   const router = useRouter();
   const imageInput = useRef<HTMLInputElement>(null);
   const filesInput = useRef<HTMLInputElement>(null);
+  const editImageInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [imageDragging, setImageDragging] = useState(false);
   const [filesDragging, setFilesDragging] = useState(false);
+  const [editImageDragging, setEditImageDragging] = useState(false);
+  const [editImageName, setEditImageName] = useState("");
+  const [editImagePreview, setEditImagePreview] = useState("");
   const [imagePreview, setImagePreview] = useState("");
   const [imageName, setImageName] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<
@@ -76,6 +110,9 @@ export function ProjectManager({
   const [techRows, setTechRows] = useState<
     Array<{ id: string; technologyId: string }>
   >([]);
+  const [techCsv, setTechCsv] = useState("");
+  const [editTechCsv, setEditTechCsv] = useState("");
+  const [editTechIds, setEditTechIds] = useState<string[]>([]);
   const [orders, setOrders] = useState<Record<string, number>>(() =>
     Object.fromEntries(
       initial.map((project) => [project.id, project.sortOrder]),
@@ -104,6 +141,13 @@ export function ProjectManager({
       if (imagePreview) URL.revokeObjectURL(imagePreview);
     },
     [imagePreview],
+  );
+
+  useEffect(
+    () => () => {
+      if (editImagePreview) URL.revokeObjectURL(editImagePreview);
+    },
+    [editImagePreview],
   );
 
   function notify(message: string, type: Notification["type"]) {
@@ -140,6 +184,19 @@ export function ProjectManager({
   function selectAssociatedFiles(files: readonly File[]) {
     if (!configured || pending || !filesInput.current) return;
     setInputFiles(filesInput.current, files.slice(0, 8));
+  }
+
+  function selectEditImage(file: File) {
+    if (!configured || pending || !editImageInput.current) return;
+    if (
+      !["image/jpeg", "image/png", "image/webp", "image/avif"].includes(
+        file.type,
+      )
+    ) {
+      notify("Drop a JPEG, PNG, WebP, or AVIF image.", "error");
+      return;
+    }
+    setInputFiles(editImageInput.current, [file]);
   }
 
   function removeSelectedFile(index: number) {
@@ -179,6 +236,7 @@ export function ProjectManager({
         setImageName("");
         setSelectedFiles([]);
         setTechRows([]);
+        setTechCsv("");
         router.refresh();
       }
     } catch {
@@ -209,6 +267,85 @@ export function ProjectManager({
       if (response.ok) router.refresh();
     } catch {
       notify("Network error. The project order was not updated.", "error");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function updateDetails(
+    event: React.FormEvent<HTMLFormElement>,
+    project: ProjectItem,
+  ) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setPending(true);
+    setNotification(null);
+    try {
+      const response = await fetch("/api/manage/projects", {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "project_update",
+          id: project.id,
+          title: form.get("title"),
+          subtitle: form.get("subtitle"),
+          description: form.get("description"),
+          imageAlt: form.get("imageAlt"),
+          githubUrl: form.get("githubUrl"),
+          linkedinUrl: form.get("linkedinUrl"),
+          liveUrl: form.get("liveUrl"),
+          status: form.get("status"),
+          techIds: form.getAll("techIds"),
+          techCsv: form.get("techCsv"),
+        }),
+      });
+      const result = (await response.json()) as { message?: string };
+      notify(
+        result.message ??
+          (response.ok ? "Project updated." : "Project update failed."),
+        response.ok ? "success" : "error",
+      );
+      if (response.ok) {
+        setEditingId(null);
+        router.refresh();
+      }
+    } catch {
+      notify("Network error. The project was not updated.", "error");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function updateImage(
+    event: React.FormEvent<HTMLFormElement>,
+    project: ProjectItem,
+  ) {
+    event.preventDefault();
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    form.set("id", project.id);
+    setPending(true);
+    setNotification(null);
+    try {
+      const response = await fetch("/api/manage/projects", {
+        method: "PUT",
+        body: form,
+      });
+      const result = (await response.json()) as { message?: string };
+      notify(
+        result.message ??
+          (response.ok ? "Project image updated." : "Image update failed."),
+        response.ok ? "success" : "error",
+      );
+      if (response.ok) {
+        formElement.reset();
+        if (editImagePreview) URL.revokeObjectURL(editImagePreview);
+        setEditImagePreview("");
+        setEditImageName("");
+        router.refresh();
+      }
+    } catch {
+      notify("Network error. The project image was not updated.", "error");
     } finally {
       setPending(false);
     }
@@ -549,7 +686,73 @@ export function ProjectManager({
 
         <fieldset className="project-tech-editor">
           <legend>Tech stack</legend>
-          <p>Select technologies from the toolkit used on the public site.</p>
+          <p>
+            Select technologies from the icon catalog or add a comma-separated
+            list. Unmatched names use a generic code icon.
+          </p>
+          <label className="project-tech-csv">
+            Technologies (CSV)
+            <input
+              name="techCsv"
+              placeholder="Astro, Redis, GraphQL"
+              maxLength={1000}
+              value={techCsv}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                const matches = parseTechnologyCsv(value).filter(
+                  (technology) => technology.known,
+                );
+                setTechCsv(value);
+                setTechRows((current) => {
+                  const selected = new Set(
+                    current.map((row) => row.technologyId),
+                  );
+                  return [
+                    ...current,
+                    ...matches
+                      .filter((technology) => !selected.has(technology.id))
+                      .map((technology) => ({
+                        id: crypto.randomUUID(),
+                        technologyId: technology.id,
+                      })),
+                  ].slice(0, 20);
+                });
+              }}
+            />
+          </label>
+          {techCsv && (
+            <ul className="project-tech-csv-preview" aria-live="polite">
+              {parseTechnologyCsv(techCsv).map((technology) => (
+                <li key={technology.id}>
+                  <TechnologyIcon id={technology.id} />
+                  <span>{technology.name}</span>
+                  <small>{technology.known ? "Icon matched" : "Custom"}</small>
+                  <button
+                    className="project-tech-csv-remove"
+                    type="button"
+                    aria-label={`Remove ${technology.name}`}
+                    disabled={pending}
+                    onClick={() => {
+                      setTechCsv(
+                        parseTechnologyCsv(techCsv)
+                          .filter((item) => item.id !== technology.id)
+                          .map((item) => item.name)
+                          .join(", "),
+                      );
+                      if (technology.known)
+                        setTechRows((current) =>
+                          current.filter(
+                            (row) => row.technologyId !== technology.id,
+                          ),
+                        );
+                    }}
+                  >
+                    <Trash2 aria-hidden="true" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="project-tech-rows">
             {techRows.map((row, index) => (
               <div className="project-tech-row" key={row.id}>
@@ -754,8 +957,370 @@ export function ProjectManager({
                       })}
                     </ul>
                   )}
+                  {editingId === project.id && (
+                    <div className="project-edit-section">
+                      <div className="project-edit-heading">
+                        <div>
+                          <h4>Edit {project.title}</h4>
+                          <p>
+                            Update the project image and information in separate
+                            sections.
+                          </p>
+                        </div>
+                        <button
+                          className="secondary-button"
+                          type="button"
+                          disabled={pending}
+                          onClick={() => setEditingId(null)}
+                        >
+                          <X aria-hidden="true" /> Close
+                        </button>
+                      </div>
+                      <form
+                        className="project-image-edit-form project-edit-card"
+                        onSubmit={(event) => updateImage(event, project)}
+                      >
+                        <div className="project-edit-card-heading">
+                          <ImageUp aria-hidden="true" />
+                          <div>
+                            <h5>Project image</h5>
+                            <p>Replace the image shown on the public site.</p>
+                          </div>
+                        </div>
+                        <div className="project-image-edit-grid">
+                          <label
+                            className={`project-dropzone${editImageDragging ? "is-dragging" : ""}`}
+                            onDragEnter={(event) => {
+                              event.preventDefault();
+                              setEditImageDragging(true);
+                            }}
+                            onDragOver={(event) => event.preventDefault()}
+                            onDragLeave={(event) => {
+                              if (
+                                !event.currentTarget.contains(
+                                  event.relatedTarget as Node,
+                                )
+                              )
+                                setEditImageDragging(false);
+                            }}
+                            onDrop={(event) => {
+                              event.preventDefault();
+                              setEditImageDragging(false);
+                              const file = event.dataTransfer.files[0];
+                              if (file) selectEditImage(file);
+                            }}
+                          >
+                            <ImageUp aria-hidden="true" />
+                            <strong>
+                              {editImageName ||
+                                "Drop a new image here or browse"}
+                            </strong>
+                            <span>JPEG, PNG, WebP, or AVIF · maximum 5 MB</span>
+                            <input
+                              ref={editImageInput}
+                              name="image"
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,image/avif"
+                              required
+                              disabled={!configured || pending}
+                              onChange={(event) => {
+                                const file = event.currentTarget.files?.[0];
+                                if (!file) {
+                                  setEditImageName("");
+                                  setEditImagePreview("");
+                                  return;
+                                }
+                                if (editImagePreview)
+                                  URL.revokeObjectURL(editImagePreview);
+                                setEditImageName(file.name);
+                                setEditImagePreview(URL.createObjectURL(file));
+                              }}
+                            />
+                          </label>
+                          <div className="project-image-edit-fields">
+                            {editImagePreview ? (
+                              <Image
+                                className="project-edit-image-preview"
+                                src={editImagePreview}
+                                alt="New project image preview"
+                                width={480}
+                                height={300}
+                                unoptimized
+                              />
+                            ) : (
+                              <Image
+                                className="project-edit-image-preview"
+                                src={project.imageUrl}
+                                alt="Current project image"
+                                width={480}
+                                height={300}
+                              />
+                            )}
+                            <label>
+                              Image alternative text
+                              <input
+                                name="imageAlt"
+                                defaultValue={project.imageAlt}
+                                required
+                                maxLength={240}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                        <button
+                          className="secondary-button"
+                          disabled={!configured || pending}
+                        >
+                          <ImageUp aria-hidden="true" />
+                          {pending ? "Replacing…" : "Replace image"}
+                        </button>
+                      </form>
+                      <form
+                        className="project-edit-form project-edit-card"
+                        onSubmit={(event) => updateDetails(event, project)}
+                      >
+                        <div className="project-edit-card-heading">
+                          <Pencil aria-hidden="true" />
+                          <div>
+                            <h5>Project information</h5>
+                            <p>
+                              Edit content, links, status, and technologies.
+                            </p>
+                          </div>
+                        </div>
+                        <div className="form-grid">
+                          <label>
+                            Project title
+                            <input
+                              name="title"
+                              defaultValue={project.title}
+                              required
+                              minLength={2}
+                              maxLength={120}
+                            />
+                          </label>
+                          <label>
+                            Project subtitle
+                            <input
+                              name="subtitle"
+                              defaultValue={project.subtitle}
+                              required
+                              minLength={2}
+                              maxLength={180}
+                            />
+                          </label>
+                          <label>
+                            Status
+                            <select
+                              name="status"
+                              defaultValue={project.status}
+                              required
+                            >
+                              <option value="planned">Planned</option>
+                              <option value="in_progress">In progress</option>
+                              <option value="completed">Completed</option>
+                              <option value="archived">Archived</option>
+                            </select>
+                          </label>
+                          <label>
+                            Image alternative text
+                            <input
+                              name="imageAlt"
+                              defaultValue={project.imageAlt}
+                              required
+                              maxLength={240}
+                            />
+                          </label>
+                          <label>
+                            GitHub link (optional)
+                            <input
+                              name="githubUrl"
+                              type="url"
+                              defaultValue={project.githubUrl ?? ""}
+                            />
+                          </label>
+                          <label>
+                            LinkedIn link (optional)
+                            <input
+                              name="linkedinUrl"
+                              type="url"
+                              defaultValue={project.linkedinUrl ?? ""}
+                            />
+                          </label>
+                          <label>
+                            Live site link (optional)
+                            <input
+                              name="liveUrl"
+                              type="url"
+                              defaultValue={project.liveUrl ?? ""}
+                            />
+                          </label>
+                          <label>
+                            Tech stack
+                            <select
+                              name="techIds"
+                              multiple
+                              size={6}
+                              value={editTechIds}
+                              onChange={(event) =>
+                                setEditTechIds(
+                                  Array.from(
+                                    event.currentTarget.selectedOptions,
+                                    (option) => option.value,
+                                  ),
+                                )
+                              }
+                            >
+                              {technologyGroups.map((group) => (
+                                <optgroup label={group.title} key={group.id}>
+                                  {group.technologies.map((technology) => (
+                                    <option
+                                      key={technology.id}
+                                      value={technology.id}
+                                    >
+                                      {technology.name}
+                                    </option>
+                                  ))}
+                                </optgroup>
+                              ))}
+                            </select>
+                            <small>
+                              Hold Ctrl or Command to select multiple
+                              technologies.
+                            </small>
+                          </label>
+                          <label>
+                            Additional technologies (CSV)
+                            <input
+                              name="techCsv"
+                              value={editTechCsv}
+                              onChange={(event) => {
+                                const value = event.currentTarget.value;
+                                const matchedIds = parseTechnologyCsv(value)
+                                  .filter((technology) => technology.known)
+                                  .map((technology) => technology.id);
+                                setEditTechCsv(value);
+                                setEditTechIds((current) => [
+                                  ...new Set([...current, ...matchedIds]),
+                                ]);
+                              }}
+                              placeholder="Astro, Redis, GraphQL"
+                              maxLength={1000}
+                            />
+                            <small>
+                              Known names receive their catalog icon; other
+                              names receive a generic code icon.
+                            </small>
+                          </label>
+                          {editTechCsv && (
+                            <ul
+                              className="project-tech-csv-preview"
+                              aria-live="polite"
+                            >
+                              {parseTechnologyCsv(editTechCsv).map(
+                                (technology) => (
+                                <li key={technology.id}>
+                                  <TechnologyIcon id={technology.id} />
+                                  <span>{technology.name}</span>
+                                  <small>
+                                    {technology.known
+                                      ? "Icon matched"
+                                      : "Custom"}
+                                  </small>
+                                  <button
+                                    className="project-tech-csv-remove"
+                                    type="button"
+                                    aria-label={`Remove ${technology.name}`}
+                                    disabled={pending}
+                                    onClick={() => {
+                                      setEditTechCsv(
+                                        parseTechnologyCsv(editTechCsv)
+                                          .filter(
+                                            (item) =>
+                                              item.id !== technology.id,
+                                          )
+                                          .map((item) => item.name)
+                                          .join(", "),
+                                      );
+                                      if (technology.known)
+                                        setEditTechIds((current) =>
+                                          current.filter(
+                                            (technologyId) =>
+                                              technologyId !== technology.id,
+                                          ),
+                                        );
+                                    }}
+                                  >
+                                    <Trash2 aria-hidden="true" />
+                                  </button>
+                                </li>
+                                ),
+                              )}
+                            </ul>
+                          )}
+                        </div>
+                        <label className="project-description">
+                          Description
+                          <textarea
+                            name="description"
+                            defaultValue={project.description}
+                            required
+                            minLength={10}
+                            maxLength={5000}
+                            rows={7}
+                          />
+                        </label>
+                        <div className="project-edit-actions">
+                          <button className="primary-button" disabled={pending}>
+                            {pending && (
+                              <LoaderCircle
+                                className="spin"
+                                aria-hidden="true"
+                              />
+                            )}
+                            {pending ? "Saving…" : "Save changes"}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
                 </div>
                 <div className="project-admin-actions">
+                  <button
+                    className="secondary-button"
+                    type="button"
+                    aria-expanded={editingId === project.id}
+                    disabled={pending}
+                    onClick={() => {
+                      if (editImagePreview)
+                        URL.revokeObjectURL(editImagePreview);
+                      setEditImagePreview("");
+                      setEditImageName("");
+                      setEditImageDragging(false);
+                      setEditTechIds(
+                        project.techStack
+                          .map((technology) => technology.id)
+                          .filter((technologyId) =>
+                            catalogTechnologyIds.has(technologyId),
+                          ),
+                      );
+                      setEditTechCsv(
+                        project.techStack
+                          .filter(
+                            (technology) =>
+                              !catalogTechnologyIds.has(technology.id),
+                          )
+                          .map((technology) => technology.name)
+                          .join(", "),
+                      );
+                      setEditingId((current) =>
+                        current === project.id ? null : project.id,
+                      );
+                    }}
+                  >
+                    <Pencil aria-hidden="true" />
+                    {editingId === project.id ? "Close editor" : "Edit"}
+                  </button>
                   <label htmlFor={`project-order-${project.id}`}>Order</label>
                   <div>
                     <input

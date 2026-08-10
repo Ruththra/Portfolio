@@ -96,7 +96,6 @@ export const technologyIcons: Record<TechnologyId, TechnologyIconType> = {
 };
 
 export function TechnologyIcon({ id }: { id: string }) {
-  const Icon = technologyIcons[id as TechnologyId];
-  if (!Icon) return null;
+  const Icon = technologyIcons[id as TechnologyId] ?? Code2;
   return <Icon aria-hidden="true" />;
 }
