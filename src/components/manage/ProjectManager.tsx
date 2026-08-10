@@ -1219,41 +1219,41 @@ export function ProjectManager({
                             >
                               {parseTechnologyCsv(editTechCsv).map(
                                 (technology) => (
-                                <li key={technology.id}>
-                                  <TechnologyIcon id={technology.id} />
-                                  <span>{technology.name}</span>
-                                  <small>
-                                    {technology.known
-                                      ? "Icon matched"
-                                      : "Custom"}
-                                  </small>
-                                  <button
-                                    className="project-tech-csv-remove"
-                                    type="button"
-                                    aria-label={`Remove ${technology.name}`}
-                                    disabled={pending}
-                                    onClick={() => {
-                                      setEditTechCsv(
-                                        parseTechnologyCsv(editTechCsv)
-                                          .filter(
-                                            (item) =>
-                                              item.id !== technology.id,
-                                          )
-                                          .map((item) => item.name)
-                                          .join(", "),
-                                      );
-                                      if (technology.known)
-                                        setEditTechIds((current) =>
-                                          current.filter(
-                                            (technologyId) =>
-                                              technologyId !== technology.id,
-                                          ),
+                                  <li key={technology.id}>
+                                    <TechnologyIcon id={technology.id} />
+                                    <span>{technology.name}</span>
+                                    <small>
+                                      {technology.known
+                                        ? "Icon matched"
+                                        : "Custom"}
+                                    </small>
+                                    <button
+                                      className="project-tech-csv-remove"
+                                      type="button"
+                                      aria-label={`Remove ${technology.name}`}
+                                      disabled={pending}
+                                      onClick={() => {
+                                        setEditTechCsv(
+                                          parseTechnologyCsv(editTechCsv)
+                                            .filter(
+                                              (item) =>
+                                                item.id !== technology.id,
+                                            )
+                                            .map((item) => item.name)
+                                            .join(", "),
                                         );
-                                    }}
-                                  >
-                                    <Trash2 aria-hidden="true" />
-                                  </button>
-                                </li>
+                                        if (technology.known)
+                                          setEditTechIds((current) =>
+                                            current.filter(
+                                              (technologyId) =>
+                                                technologyId !== technology.id,
+                                            ),
+                                          );
+                                      }}
+                                    >
+                                      <Trash2 aria-hidden="true" />
+                                    </button>
+                                  </li>
                                 ),
                               )}
                             </ul>
