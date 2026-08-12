@@ -78,8 +78,9 @@ export function AvatarSequence({
               id: avatarAnimation.scrollTrigger.id,
               trigger: root,
               start: avatarAnimation.scrollTrigger.start,
-              endTrigger: ".footer",
-              end: avatarAnimation.scrollTrigger.end,
+              endTrigger: ".contact-form",
+              end: () =>
+                `bottom ${Math.round((window.innerHeight + root.offsetHeight) / 2)}px`,
               pin: root,
               pinSpacing: false,
               scrub: avatarAnimation.scrollTrigger.scrub,
