@@ -23,6 +23,7 @@ export default async function ProjectsManagePage() {
         initial={{
           showBlog: content.showBlog,
           showProjects: content.showProjects,
+          showResearch: content.showResearch,
         }}
       />
       <ProjectManager

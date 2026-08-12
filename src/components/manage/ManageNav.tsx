@@ -9,6 +9,8 @@ import {
   ImageIcon,
   LayoutTemplate,
   Library,
+  Microscope,
+  ExternalLink,
   Settings,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,6 +19,7 @@ const links = [
   { href: "/manage", label: "Overview", icon: Gauge },
   { href: "/manage/blogs", label: "Blogs", icon: FileText },
   { href: "/manage/projects", label: "Projects", icon: Folder },
+  { href: "/manage/research", label: "Research", icon: Microscope },
   { href: "/manage/content", label: "Content", icon: LayoutTemplate },
   { href: "/manage/media", label: "Media", icon: ImageIcon },
   { href: "/manage/resume", label: "Resume", icon: Library },
@@ -64,7 +67,19 @@ export function ManageNav() {
           );
         })}
       </nav>
-      <LogoutButton />
+      <div className="manage-sidebar-actions">
+        <Link
+          className="manage-link manage-live-link"
+          href="/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <ExternalLink aria-hidden="true" />
+          View live site
+          <span className="sr-only"> (opens in a new tab)</span>
+        </Link>
+        <LogoutButton />
+      </div>
     </aside>
   );
 }

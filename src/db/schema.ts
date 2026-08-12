@@ -160,6 +160,7 @@ export const projects = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
     title: text("title").notNull(),
+    subtitle: text("subtitle").notNull().default(""),
     slug: text("slug").notNull(),
     description: text("description").notNull(),
     imageUrl: text("image_url").notNull(),
@@ -192,6 +193,46 @@ export const projects = pgTable(
   ],
 );
 
+export const research = pgTable(
+  "research",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    title: text("title").notNull(),
+    subtitle: text("subtitle").notNull().default(""),
+    slug: text("slug").notNull(),
+    abstract: text("abstract").notNull(),
+    authors: text("authors").notNull(),
+    imageUrl: text("image_url"),
+    imagePathname: text("image_pathname"),
+    imageAlt: text("image_alt").notNull().default(""),
+    venue: text("venue"),
+    publicationUrl: text("publication_url"),
+    repositoryUrl: text("repository_url"),
+    status: text("status").notNull().default("in_progress"),
+    sortOrder: integer("sort_order").notNull(),
+    techStack: jsonb("tech_stack")
+      .$type<ProjectTechnology[]>()
+      .notNull()
+      .default([]),
+    associatedFiles: jsonb("associated_files")
+      .$type<ProjectFile[]>()
+      .notNull()
+      .default([]),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("research_slug_unique").on(table.slug),
+    index("research_sort_order_idx").on(table.sortOrder),
+    index("research_status_idx").on(table.status),
+  ],
+);
+
 export type BlogRecord = typeof blogPosts.$inferSelect;
 export type ResumeRecord = typeof resumes.$inferSelect;
 export type ProjectRecord = typeof projects.$inferSelect;
+export type ResearchRecord = typeof research.$inferSelect;

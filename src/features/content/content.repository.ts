@@ -24,6 +24,7 @@ export const defaultContent: PortfolioContent = {
   showRemoteAvailability: true,
   showBlog: true,
   showProjects: true,
+  showResearch: true,
   seoDescription: siteConfig.seoDescription,
 };
 export const getPortfolioContent = cache(
@@ -46,7 +47,10 @@ export const getPortfolioContent = cache(
   },
 );
 export async function savePortfolioVisibility(
-  visibility: Pick<PortfolioContent, "showBlog" | "showProjects">,
+  visibility: Pick<
+    PortfolioContent,
+    "showBlog" | "showProjects" | "showResearch"
+  >,
 ) {
   const current = await getPortfolioContent();
   return savePortfolioContent({ ...current, ...visibility });

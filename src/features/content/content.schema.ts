@@ -36,10 +36,12 @@ export const portfolioContentSchema = z.object({
   showRemoteAvailability: z.boolean(),
   showBlog: z.boolean(),
   showProjects: z.boolean(),
+  showResearch: z.boolean(),
   seoDescription: z.string().trim().min(20).max(170),
 });
 export const portfolioVisibilitySchema = portfolioContentSchema.pick({
   showBlog: true,
   showProjects: true,
+  showResearch: true,
 });
 export type PortfolioContent = z.infer<typeof portfolioContentSchema>;

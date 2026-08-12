@@ -10,6 +10,7 @@ type BlogsManageViewProps = {
   visibility: {
     showBlog: boolean;
     showProjects: boolean;
+    showResearch: boolean;
   };
 };
 

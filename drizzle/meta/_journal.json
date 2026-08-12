@@ -43,6 +43,27 @@
       "when": 1786255200000,
       "tag": "0005_project_tech_stack",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786344164561,
+      "tag": "0006_tiresome_johnny_blaze",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786366800000,
+      "tag": "0007_add_research",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786368600000,
+      "tag": "0008_research_assets",
+      "breakpoints": true
     }
   ]
 }

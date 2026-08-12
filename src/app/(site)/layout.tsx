@@ -16,6 +16,7 @@ export default async function PublicSiteLayout({
       visibility={{
         showBlog: content.showBlog,
         showProjects: content.showProjects,
+        showResearch: content.showResearch,
       }}
       resumeAvailable={Boolean(selectedResume)}
     >
