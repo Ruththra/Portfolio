@@ -3,17 +3,28 @@ import Image from "next/image";
 import Link from "next/link";
 import { TechnologyIcon } from "@/components/icons/TechnologyIcon";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Pagination } from "@/components/ui/Pagination";
 import { getPortfolioContent } from "@/features/content/content.repository";
 import { listPublicProjects } from "@/features/projects/project.repository";
 import { notFound } from "next/navigation";
+import { paginate } from "@/lib/pagination";
 export const metadata: Metadata = {
   title: "Projects",
   description:
     "Software, AI, and data project case studies by Ruththiragayan Sutharsan.",
 };
-export default async function ProjectsPage() {
+export default async function ProjectsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
   if (!(await getPortfolioContent()).showProjects) notFound();
-  const projects = await listPublicProjects();
+  const allProjects = await listPublicProjects();
+  const {
+    items: projects,
+    page,
+    totalPages,
+  } = paginate(allProjects, (await searchParams).page, 10);
   return (
     <div className="page-shell">
       <p className="eyebrow">WORK ARCHIVE</p>
@@ -22,38 +33,45 @@ export default async function ProjectsPage() {
         Real project case studies will live here, including the problem,
         decisions, implementation, and lessons learned.
       </p>
-      {projects.length ? (
-        <div className="project-grid">
-          {projects.map((project) => (
-            <Link
-              className="project-card"
-              href={`/projects/${project.slug}`}
-              key={project.slug}
-            >
-              <Image
-                src={project.imageUrl}
-                alt={project.imageAlt}
-                width={640}
-                height={400}
-              />
-              <span>{project.status.replace("_", " ")}</span>
-              <h2>{project.title}</h2>
-              {project.subtitle && (
-                <p className="project-card-subtitle">{project.subtitle}</p>
-              )}
-              <p>{project.description}</p>
-              {project.techStack.length > 0 && (
-                <ul className="project-card-tech" aria-label="Tech stack">
-                  {project.techStack.map((technology) => (
-                    <li key={technology.id} title={technology.name}>
-                      <TechnologyIcon id={technology.id} />
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Link>
-          ))}
-        </div>
+      {allProjects.length ? (
+        <>
+          <div className="project-grid">
+            {projects.map((project) => (
+              <Link
+                className="project-card"
+                href={`/projects/${project.slug}`}
+                key={project.slug}
+              >
+                <Image
+                  src={project.imageUrl}
+                  alt={project.imageAlt}
+                  width={640}
+                  height={400}
+                />
+                <span>{project.status.replace("_", " ")}</span>
+                <h2>{project.title}</h2>
+                {project.subtitle && (
+                  <p className="project-card-subtitle">{project.subtitle}</p>
+                )}
+                <p>{project.description}</p>
+                {project.techStack.length > 0 && (
+                  <ul className="project-card-tech" aria-label="Tech stack">
+                    {project.techStack.map((technology) => (
+                      <li key={technology.id} title={technology.name}>
+                        <TechnologyIcon id={technology.id} />
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Link>
+            ))}
+          </div>
+          <Pagination
+            basePath="/projects"
+            currentPage={page}
+            totalPages={totalPages}
+          />
+        </>
       ) : (
         <EmptyState
           title="Case studies are being prepared"

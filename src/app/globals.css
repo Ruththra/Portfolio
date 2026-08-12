@@ -46,6 +46,96 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: clip;
 }
+.binary-rain {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.binary-rain-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: clamp(3rem, 6vw, 5.5rem);
+  overflow: hidden;
+  opacity: 0.32;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+.binary-rain-edge.left {
+  left: 0;
+  border-left: 1px solid color-mix(in srgb, var(--cyan) 24%, transparent);
+  background: linear-gradient(to right, rgba(35, 139, 255, 0.08), transparent);
+}
+.binary-rain-edge.right {
+  right: 0;
+  border-right: 1px solid color-mix(in srgb, var(--cyan) 24%, transparent);
+  background: linear-gradient(to left, rgba(35, 139, 255, 0.08), transparent);
+}
+.binary-rain-edge span {
+  position: absolute;
+  top: -18rem;
+  color: var(--cyan);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.68rem;
+  line-height: 1.65;
+  text-align: center;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--cyan) 75%, transparent);
+  white-space: pre;
+  animation: binary-fall 9s linear infinite;
+}
+.binary-rain-edge span:nth-child(1) {
+  left: 8%;
+  animation-delay: -7s;
+  animation-duration: 10s;
+}
+.binary-rain-edge span:nth-child(2) {
+  left: 31%;
+  animation-delay: -2s;
+  animation-duration: 8s;
+}
+.binary-rain-edge span:nth-child(3) {
+  left: 57%;
+  animation-delay: -5s;
+  animation-duration: 12s;
+}
+.binary-rain-edge span:nth-child(4) {
+  left: 81%;
+  animation-delay: -9s;
+  animation-duration: 11s;
+}
+@keyframes binary-fall {
+  from {
+    transform: translateY(-20vh);
+  }
+  to {
+    transform: translateY(calc(100vh + 36rem));
+  }
+}
+@media (max-width: 1023px) {
+  .binary-rain {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .binary-rain-edge span {
+    top: 8vh;
+    animation: none;
+  }
+}
 a {
   color: inherit;
   text-decoration: none;
@@ -3170,6 +3260,66 @@ a.resume:hover {
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
+.featured-carousel {
+  min-width: 0;
+  overflow: hidden;
+}
+.featured-projects-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.carousel-slide {
+  animation: carousel-slide-in 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes carousel-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(4rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 2rem;
+}
+.carousel-dots button {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.carousel-dots button::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 9px;
+  height: 9px;
+  border: 1px solid var(--bright);
+  border-radius: 999px;
+  background: transparent;
+  content: "";
+  transform: translate(-50%, -50%);
+  transition:
+    width 180ms ease,
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.carousel-dots button:hover::after,
+.carousel-dots button:focus-visible::after,
+.carousel-dots button.is-active::after {
+  background: var(--bright);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--bright) 70%, transparent);
+}
+.carousel-dots button.is-active::after {
+  width: 24px;
+}
 .project-card {
   display: block;
   padding: 1.5rem;
@@ -3231,6 +3381,43 @@ a.resume:hover {
   border: 1px solid var(--border);
   border-radius: 0.55rem;
   background: rgba(255, 255, 255, 0.035);
+}
+.pagination,
+.pagination-pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.65rem;
+}
+.pagination {
+  margin-top: 2.5rem;
+}
+.pagination a,
+.pagination-disabled {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+}
+.pagination a:hover,
+.pagination a:focus-visible,
+.pagination a[aria-current="page"] {
+  border-color: var(--bright);
+  background: color-mix(in srgb, var(--blue) 14%, transparent);
+  color: var(--bright);
+}
+.pagination-disabled {
+  color: var(--muted);
+  opacity: 0.55;
+}
+.pagination svg {
+  width: 1rem;
+  height: 1rem;
 }
 .project-detail-image {
   width: 100%;

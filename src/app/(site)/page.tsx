@@ -7,16 +7,24 @@ import { ResearchPreview } from "@/components/sections/ResearchSection";
 import { Contact } from "@/components/sections/ContactSection";
 import { getPortfolioContent } from "@/features/content/content.repository";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    researchPage?: string | string[];
+    blogPage?: string | string[];
+  }>;
+}) {
   const content = await getPortfolioContent();
+  const pages = await searchParams;
   return (
     <>
       <Hero />
       <Skills />
       <About />
       {content.showProjects && <FeaturedProjects />}
-      {content.showResearch && <ResearchPreview />}
-      {content.showBlog && <BlogPreview />}
+      {content.showResearch && <ResearchPreview page={pages.researchPage} />}
+      {content.showBlog && <BlogPreview page={pages.blogPage} />}
       <Contact />
     </>
   );

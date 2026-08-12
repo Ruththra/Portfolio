@@ -1,5 +1,6 @@
 import { Navbar } from "./Navbar";
 import { Footer } from "./Footer";
+import { BinaryRain } from "@/components/effects/BinaryRain";
 export function SiteFrame({
   children,
   visibility,
@@ -15,6 +16,7 @@ export function SiteFrame({
 }) {
   return (
     <>
+      <BinaryRain />
       <a href="#main-content" className="skip-link">
         Skip to content
       </a>
