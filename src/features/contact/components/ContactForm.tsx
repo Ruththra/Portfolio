@@ -87,7 +87,7 @@ export function ContactForm() {
       <Field label="Message" error={errors.message?.message}>
         <textarea
           {...register("message")}
-          rows={6}
+          rows={3}
           aria-invalid={!!errors.message}
         />
       </Field>

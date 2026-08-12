@@ -3485,6 +3485,12 @@ a.resume:hover {
   grid-template-columns: minmax(0, 1fr);
   gap: 1.2rem;
 }
+.section.contact {
+  padding-bottom: 1.5rem;
+}
+main:has(> .contact:last-child) + .footer {
+  margin-top: 0;
+}
 .contact-cards {
   display: grid;
   gap: 0.65rem;
@@ -3519,7 +3525,9 @@ a.resume:hover {
   opacity: 0.7;
 }
 .contact-form {
-  padding: 1.5rem;
+  width: min(100%, 620px);
+  justify-self: start;
+  padding: 1rem;
 }
 .field-row {
   display: grid;
