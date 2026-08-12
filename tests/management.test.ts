@@ -35,11 +35,12 @@ describe("management security", () => {
     });
     expect(result.success).toBe(false);
   });
-  it("validates both public visibility controls", () => {
+  it("validates all public visibility controls", () => {
     expect(
       portfolioVisibilitySchema.safeParse({
         showBlog: false,
         showProjects: true,
+        showResearch: true,
       }).success,
     ).toBe(true);
     expect(portfolioContentSchema.safeParse({ showBlog: true }).success).toBe(
@@ -60,6 +61,7 @@ describe("management security", () => {
       showRemoteAvailability: true,
       showBlog: true,
       showProjects: true,
+      showResearch: true,
       seoDescription:
         "A sufficiently long default description for search engine previews.",
     });

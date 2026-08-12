@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   description:
     "Research publications and ongoing studies by Ruththiragayan Sutharsan.",
 };
+export const dynamic = "force-dynamic";
 export default async function ResearchPage({
   searchParams,
 }: {
