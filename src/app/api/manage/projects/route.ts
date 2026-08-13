@@ -103,7 +103,7 @@ export async function POST(request: Request) {
   const slug = slugify(title);
   const description = String(form.get("description") ?? "").trim();
   const imageAlt = String(form.get("imageAlt") ?? "").trim();
-  const status = String(form.get("status") ?? "in_progress");
+  const status = String(form.get("status") ?? "completed");
   const requestedOrder = Number(form.get("sortOrder"));
   const githubInput = form.get("githubUrl");
   const linkedinInput = form.get("linkedinUrl");

@@ -169,7 +169,7 @@ export const projects = pgTable(
     githubUrl: text("github_url"),
     linkedinUrl: text("linkedin_url"),
     liveUrl: text("live_url"),
-    status: text("status").notNull().default("in_progress"),
+    status: text("status").notNull().default("completed"),
     sortOrder: integer("sort_order").notNull(),
     associatedFiles: jsonb("associated_files")
       .$type<ProjectFile[]>()

@@ -485,7 +485,7 @@ export function ProjectManager({
           </label>
           <label>
             Project status
-            <select name="status" defaultValue="in_progress" required>
+            <select name="status" defaultValue="completed" required>
               <option value="planned">Planned</option>
               <option value="in_progress">In progress</option>
               <option value="completed">Completed</option>

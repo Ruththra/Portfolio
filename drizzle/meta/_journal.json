@@ -64,6 +64,13 @@
       "when": 1786368600000,
       "tag": "0008_research_assets",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1786640170047,
+      "tag": "0009_sharp_tiger_shark",
+      "breakpoints": true
     }
   ]
 }
