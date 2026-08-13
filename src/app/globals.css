@@ -3588,9 +3588,24 @@ main:has(> .contact:last-child) + .footer {
 .footer {
   max-width: var(--max);
   margin: 5rem auto 0;
-  padding: 3.5rem 2rem 1.5rem;
+  padding: 1.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
   border-top: 1px solid var(--border);
   color: var(--secondary);
+  text-align: center;
+  font-size: 0.75rem;
+}
+.footer > p {
+  margin: 0;
+}
+.footer-motto {
+  color: var(--cyan);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.82rem;
 }
 .footer-main {
   display: grid;
