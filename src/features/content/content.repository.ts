@@ -5,6 +5,10 @@ import { db, requireDb } from "@/db";
 import { portfolioContent } from "@/db/schema";
 import { siteConfig } from "@/config/site";
 import type { PortfolioContent } from "./content.schema";
+
+const previousDefaultAboutText =
+  "I am a Computer Science and Engineering undergraduate at the University of Moratuwa, specializing in Data Science and Engineering. I am also a Full-Stack Developer who enjoys building scalable web and mobile applications using modern technologies.\n\nI am fascinated by how software, data, machine learning, deep learning, computer vision, and intelligent systems can solve real-world problems.";
+
 export const defaultContent: PortfolioContent = {
   heroHeading: siteConfig.fullName,
   heroIntroduction:
@@ -15,7 +19,7 @@ export const defaultContent: PortfolioContent = {
     "Passionate Learner",
   ],
   aboutText:
-    "I am a Computer Science and Engineering undergraduate at the University of Moratuwa, specializing in Data Science and Engineering. I am also a Full-Stack Developer who enjoys building scalable web and mobile applications using modern technologies.\n\nI am fascinated by how software, data, machine learning, deep learning, computer vision, and intelligent systems can solve real-world problems.",
+    "I am a Computer Science and Engineering undergraduate at the University of Moratuwa, specializing in Data Science and Engineering. As a full-stack developer, I enjoy designing and building scalable web and mobile applications that combine reliable software engineering with intelligent, data-driven capabilities.\n\nMy experience spans full-stack development, machine learning, multilingual natural language processing, predictive maintenance, RAG systems, and AI-assisted applications.\n\nI am particularly fascinated by the potential of software, data science, machine learning, deep learning, computer vision, and intelligent systems to address meaningful real-world challenges. I am always eager to learn, experiment with emerging technologies, and build solutions that create a measurable impact.",
   email: siteConfig.email,
   location: siteConfig.location,
   linkedin: siteConfig.socials.linkedin,
@@ -38,9 +42,19 @@ export const getPortfolioContent = cache(
           .where(eq(portfolioContent.key, "homepage"))
           .limit(1)
       )[0];
-      return row
-        ? { ...defaultContent, ...(row.value as Partial<PortfolioContent>) }
-        : defaultContent;
+      if (!row) return defaultContent;
+
+      const savedContent = row.value as Partial<PortfolioContent>;
+      const isUneditedPreviousDefault =
+        savedContent.aboutText === previousDefaultAboutText;
+
+      return {
+        ...defaultContent,
+        ...savedContent,
+        aboutText: isUneditedPreviousDefault
+          ? defaultContent.aboutText
+          : (savedContent.aboutText ?? defaultContent.aboutText),
+      };
     } catch {
       return defaultContent;
     }
