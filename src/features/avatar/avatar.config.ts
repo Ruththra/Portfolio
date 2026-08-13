@@ -12,7 +12,7 @@ export const avatarAnimation = {
   scrollTrigger: {
     id: "hero-avatar-video",
     start: 0,
-    scrub: 0.6,
+    scrub: true,
     anticipatePin: 1,
   },
   transitionDuration: 0.12,
