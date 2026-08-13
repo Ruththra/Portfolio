@@ -2,20 +2,17 @@ import type { CSSProperties } from "react";
 import {
   BrainCircuit,
   Braces,
-  ChartNoAxesCombined,
-  Code2,
   Database,
   PanelsTopLeft,
   ServerCog,
   Wrench,
   type LucideIcon,
 } from "lucide-react";
-import { capabilityPaths, practices, technologyGroups } from "@/data/skills";
+import { practices, technologyGroups } from "@/data/skills";
 import { technologyIcons } from "@/components/icons/TechnologyIcon";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ScrollRevealSection } from "@/components/animations/ScrollRevealSection";
 
-const capabilityIcons = [Code2, BrainCircuit, ChartNoAxesCombined] as const;
 const groupIcons: Record<(typeof technologyGroups)[number]["id"], LucideIcon> =
   {
     languages: Braces,
@@ -63,30 +60,12 @@ export function Skills() {
         title="Skills & Technologies"
         intro="I build across software engineering, intelligent systems, and data—using a modern toolkit for creating reliable, thoughtful, and scalable digital experiences."
       />
-      <div className="capability-grid">
-        {capabilityPaths.map((path, index) => {
-          const Icon = capabilityIcons[index];
-          return (
-            <article
-              className="capability-card skills-reveal"
-              key={path.title}
-              style={{ "--reveal-order": index } as CSSProperties}
-            >
-              <header>
-                <span className="capability-card__icon">
-                  <Icon aria-hidden="true" />
-                </span>
-                <span className="capability-card__number">0{index + 1}</span>
-              </header>
-              <h3>{path.title}</h3>
-              <p>{path.description}</p>
-            </article>
-          );
-        })}
-      </div>
+      {/* Capability cards are temporarily hidden.
+      <div className="capability-grid">...</div>
+      */}
       <div
         className="technology-panel skills-reveal"
-        style={{ "--reveal-order": 3 } as CSSProperties}
+        style={{ "--reveal-order": 0 } as CSSProperties}
       >
         <header className="technology-panel__heading">
           <div>
