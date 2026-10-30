@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, Github, Instagram, Linkedin, Mail, Rocket } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { hasUrl } from "@/lib/utils";
 
 type ContactRevealProps = {
@@ -18,22 +18,74 @@ export function ContactReveal({
   instagram,
 }: ContactRevealProps) {
   const [open, setOpen] = useState(false);
+  const [hasScrolled, setHasScrolled] = useState(false);
   const [atBottom, setAtBottom] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+  const [isHiding, setIsHiding] = useState(false);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const atBottomRef = useRef(false);
 
   useEffect(() => {
     const updateBottomState = () => {
-      setAtBottom(
-        window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 80,
-      );
+      const reachedBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 80;
+
+      if (reachedBottom) {
+        setOpen(false);
+        setIsHiding(false);
+        setHasScrolled(true);
+        if (!atBottomRef.current) {
+          atBottomRef.current = true;
+          setAtBottom(true);
+          hideTimeoutRef.current = setTimeout(() => {
+            setHasScrolled(false);
+            hideTimeoutRef.current = null;
+          }, 650);
+        }
+        return;
+      }
+
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = null;
+      }
+      const wasAtBottom = atBottomRef.current;
+      atBottomRef.current = false;
+      setAtBottom(false);
+      if (window.scrollY <= 0) {
+        setOpen(false);
+        setIsReturning(false);
+        setIsHiding(true);
+        setHasScrolled(true);
+        if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+        hideTimeoutRef.current = setTimeout(() => {
+          setHasScrolled(false);
+          setIsHiding(false);
+          hideTimeoutRef.current = null;
+        }, 620);
+        return;
+      }
+
+      setIsHiding(false);
+      setHasScrolled(true);
+      if (wasAtBottom) {
+        setIsReturning(true);
+        window.setTimeout(() => setIsReturning(false), 520);
+      }
     };
     const onScroll = () => {
       setOpen(false);
       updateBottomState();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
-    updateBottomState();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+    };
   }, []);
+
+  const isVisible = hasScrolled;
 
   const links = [
     ["Email", email ? `mailto:${email}` : "", Mail],
@@ -43,7 +95,9 @@ export function ContactReveal({
   ] as const;
 
   return (
-    <div className={`contact-reveal ${open ? "is-open" : ""}`}>
+    <div
+      className={`contact-reveal ${open ? "is-open" : ""} ${atBottom || isHiding ? "is-leaving" : ""} ${isReturning ? "is-returning" : ""} ${isVisible ? "" : "is-hidden"}`}
+    >
       <button
         className={`button primary contact-reveal-trigger ${atBottom ? "is-bottom-visible" : ""}`}
         type="button"
@@ -56,7 +110,7 @@ export function ContactReveal({
         {open ? (
           <ChevronDown aria-hidden="true" />
         ) : atBottom ? (
-          <>Get in Touch <Rocket aria-hidden="true" /></>
+          <Rocket aria-hidden="true" />
         ) : (
           <Rocket aria-hidden="true" />
         )}

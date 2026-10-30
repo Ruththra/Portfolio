@@ -2367,6 +2367,66 @@ a.resume:hover {
   z-index: 20;
   width: fit-content;
 }
+.contact-reveal.is-hidden {
+  display: none;
+}
+.contact-reveal:not(.is-hidden):not(.is-leaving) {
+  animation: contact-rocket-fly-in 460ms cubic-bezier(0.2, 0.85, 0.3, 1)
+    both;
+}
+.contact-reveal.is-returning {
+  animation: contact-rocket-fly-in 520ms cubic-bezier(0.2, 0.85, 0.3, 1)
+    both;
+}
+@keyframes contact-rocket-fly-in {
+  0% {
+    transform: translateY(3rem) scaleX(1.08) scaleY(0.62) rotate(-4deg);
+    opacity: 0;
+  }
+  48% {
+    transform: translateY(-0.55rem) scaleX(0.96) scaleY(1.08) rotate(2deg);
+    opacity: 1;
+  }
+  72% {
+    transform: translateY(0.18rem) scaleX(1.04) scaleY(0.9) rotate(-1deg);
+  }
+  100% {
+    transform: translateY(0) scaleX(1) scaleY(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+.contact-reveal.is-leaving {
+  animation: contact-rocket-fly-away 620ms cubic-bezier(0.2, 0.8, 0.3, 1)
+    forwards;
+  pointer-events: none;
+}
+@keyframes contact-rocket-fly-away {
+  0% {
+    transform: translateY(0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  28% {
+    transform: translateY(-0.8rem) rotate(-8deg) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(5rem, -9rem) rotate(28deg) scale(0.35);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-reveal:not(.is-hidden):not(.is-leaving) {
+    animation: none;
+  }
+  .contact-reveal.is-leaving {
+    animation: contact-rocket-fade-away 180ms ease-out forwards;
+  }
+}
+@keyframes contact-rocket-fade-away {
+  to {
+    opacity: 0;
+  }
+}
 .contact-reveal-trigger {
   position: relative;
   z-index: 2;
@@ -2382,12 +2442,6 @@ a.resume:hover {
   width: 48px;
   padding-inline: 0;
   border-radius: 50%;
-}
-.contact-reveal:not(.is-open) .contact-reveal-trigger.is-bottom-visible {
-  width: auto;
-  padding-inline: 1.15rem;
-  border-radius: 0.8rem;
-  animation: contact-slide-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .contact-reveal.is-open .contact-reveal-trigger svg {
   transform: rotate(180deg);

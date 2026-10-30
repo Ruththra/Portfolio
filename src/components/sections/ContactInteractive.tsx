@@ -60,7 +60,7 @@ export function ContactInteractive({ socials }: { socials: SocialLink[] }) {
           setOpen(true);
         }}
       >
-        Click to Contact
+        Get in Touch
       </button>
       <dialog
         ref={dialogRef}
