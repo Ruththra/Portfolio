@@ -1,10 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Download } from "lucide-react";
-import { TechnologyIcon } from "@/components/icons/TechnologyIcon";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Pagination } from "@/components/ui/Pagination";
+import { ResearchCarousel } from "./ResearchCarousel";
 import { listPublicResearch } from "@/features/research/research.repository";
 import { getPublicResearchPaper } from "@/features/research/research-files";
 import { paginate } from "@/lib/pagination";
@@ -16,6 +16,10 @@ export async function ResearchPreview({ page }: { page?: string | string[] }) {
     page: currentPage,
     totalPages,
   } = paginate(allResearch, page);
+  const carouselItems = research.map((item) => {
+    const paper = getPublicResearchPaper(item.associatedFiles);
+    return { ...item, paper: paper ? { url: paper.url, name: paper.name } : undefined };
+  });
 
   return (
     <section id="research" className="section">
@@ -31,7 +35,7 @@ export async function ResearchPreview({ page }: { page?: string | string[] }) {
       </div>
       {research.length ? (
         <>
-          <div className="project-grid">
+          {research.length > 3 ? <ResearchCarousel items={carouselItems} /> : <div className="project-grid">
             {research.map((item) => {
               const paper = getPublicResearchPaper(item.associatedFiles);
               return (
@@ -48,7 +52,6 @@ export async function ResearchPreview({ page }: { page?: string | string[] }) {
                         height={400}
                       />
                     )}
-                    <span>{item.status.replace("_", " ")}</span>
                     <h3>{item.title}</h3>
                     {item.subtitle && (
                       <p className="project-card-subtitle">{item.subtitle}</p>
@@ -56,9 +59,9 @@ export async function ResearchPreview({ page }: { page?: string | string[] }) {
                     <p>{item.abstract}</p>
                     {item.techStack.length > 0 && (
                       <ul className="project-card-tech" aria-label="Tech stack">
-                        {item.techStack.slice(0, 5).map((technology) => (
+                        {item.techStack.map((technology) => (
                           <li key={technology.id} title={technology.name}>
-                            <TechnologyIcon id={technology.id} />
+                            {technology.name}
                           </li>
                         ))}
                       </ul>
@@ -78,14 +81,14 @@ export async function ResearchPreview({ page }: { page?: string | string[] }) {
                 </article>
               );
             })}
-          </div>
-          <Pagination
+          </div>}
+          {research.length <= 3 && <Pagination
             basePath="/"
             currentPage={currentPage}
             totalPages={totalPages}
             pageParam="researchPage"
             hash="research"
-          />
+          />}
         </>
       ) : (
         <EmptyState

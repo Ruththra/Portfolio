@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import type { TransitionEvent } from "react";
 import { useEffect, useState } from "react";
-import { TechnologyIcon } from "@/components/icons/TechnologyIcon";
 
 type FeaturedProject = {
   id: string;
@@ -18,7 +17,7 @@ type FeaturedProject = {
   techStack: Array<{ id: string; name: string }>;
 };
 
-const PROJECTS_PER_SLIDE = 3;
+const VISIBLE_PROJECTS = 3;
 
 export function FeaturedProjectsCarousel({
   projects,
@@ -27,13 +26,15 @@ export function FeaturedProjectsCarousel({
 }) {
   const [slide, setSlide] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
-  const canScroll = projects.length > PROJECTS_PER_SLIDE;
+  const [isHovered, setIsHovered] = useState(false);
+  const canScroll = projects.length > VISIBLE_PROJECTS;
   const slideCount = canScroll ? projects.length : 1;
   const activeSlide = slide === slideCount ? 0 : slide;
 
   useEffect(() => {
     if (
       !canScroll ||
+      isHovered ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
@@ -42,16 +43,11 @@ export function FeaturedProjectsCarousel({
       5000,
     );
     return () => window.clearInterval(timer);
-  }, [canScroll, slideCount]);
+  }, [canScroll, isHovered, slideCount]);
 
-  const projectSlides = canScroll
-    ? Array.from({ length: slideCount + 1 }, (_, startIndex) =>
-        Array.from(
-          { length: PROJECTS_PER_SLIDE },
-          (_, offset) => projects[(startIndex + offset) % projects.length],
-        ),
-      )
-    : [projects];
+  const carouselProjects = canScroll
+    ? [...projects, ...projects.slice(0, VISIBLE_PROJECTS)]
+    : projects;
 
   function finishSlideTransition(event: TransitionEvent<HTMLDivElement>) {
     if (
@@ -74,52 +70,43 @@ export function FeaturedProjectsCarousel({
       role="region"
       aria-roledescription="carousel"
       aria-label="Featured projects"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <div className="featured-carousel__viewport" aria-live="polite">
         <div
           className="featured-carousel__track"
           style={{
-            transform: `translateX(-${slide * 100}%)`,
+            width: `${(carouselProjects.length / VISIBLE_PROJECTS) * 100}%`,
+            transform: `translateX(-${slide * (100 / carouselProjects.length)}%)`,
             transition: transitionEnabled ? undefined : "none",
           }}
           onTransitionEnd={finishSlideTransition}
         >
-          {projectSlides.map((projectSlide, slideIndex) => (
+          {carouselProjects.map((project, slideIndex) => (
             <div
-              className="project-grid featured-projects-grid carousel-slide"
+              className="carousel-slide"
+              style={{ flexBasis: `${100 / carouselProjects.length}%` }}
               aria-hidden={slideIndex !== slide}
-              key={`project-window-${slideIndex}`}
+              key={`${project.id}-${slideIndex}`}
             >
-              {projectSlide.map((project) => (
-                <Link
-                  href={`/projects/${project.slug}`}
-                  key={project.id}
-                  className="project-card"
-                  tabIndex={slideIndex === slide ? undefined : -1}
-                >
-                  <Image
-                    src={project.imageUrl}
-                    alt={project.imageAlt}
-                    width={640}
-                    height={400}
-                  />
-                  <span>{project.status.replace("_", " ")}</span>
-                  <h3>{project.title}</h3>
-                  {project.subtitle && (
-                    <p className="project-card-subtitle">{project.subtitle}</p>
-                  )}
-                  <p>{project.description}</p>
-                  {project.techStack.length > 0 && (
-                    <ul className="project-card-tech" aria-label="Tech stack">
-                      {project.techStack.slice(0, 5).map((technology) => (
-                        <li key={technology.id} title={technology.name}>
-                          <TechnologyIcon id={technology.id} />
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </Link>
-              ))}
+              <Link
+                href={`/projects/${project.slug}`}
+                className="project-card"
+                tabIndex={slideIndex === slide ? undefined : -1}
+              >
+                <Image src={project.imageUrl} alt={project.imageAlt} width={640} height={400} />
+                <h3>{project.title}</h3>
+                {project.subtitle && <p className="project-card-subtitle">{project.subtitle}</p>}
+                <p>{project.description}</p>
+                {project.techStack.length > 0 && (
+                  <ul className="project-card-tech" aria-label="Tech stack">
+                    {project.techStack.map((technology) => (
+                      <li key={technology.id} title={technology.name}>{technology.name}</li>
+                    ))}
+                  </ul>
+                )}
+              </Link>
             </div>
           ))}
         </div>
