@@ -17,17 +17,26 @@ type FeaturedProject = {
   techStack: Array<{ id: string; name: string }>;
 };
 
-const VISIBLE_PROJECTS = 3;
-
 export function FeaturedProjectsCarousel({
   projects,
 }: {
   projects: FeaturedProject[];
 }) {
+  const [visibleProjects, setVisibleProjects] = useState(3);
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const update = () => {
+      setVisibleProjects(mobile.matches ? 1 : 3);
+      setSlide(0);
+    };
+    update();
+    mobile.addEventListener("change", update);
+    return () => mobile.removeEventListener("change", update);
+  }, []);
   const [slide, setSlide] = useState(0);
   const [transitionEnabled, setTransitionEnabled] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
-  const canScroll = projects.length > VISIBLE_PROJECTS;
+  const canScroll = projects.length > visibleProjects;
   const slideCount = canScroll ? projects.length : 1;
   const activeSlide = slide === slideCount ? 0 : slide;
 
@@ -46,7 +55,7 @@ export function FeaturedProjectsCarousel({
   }, [canScroll, isHovered, slideCount]);
 
   const carouselProjects = canScroll
-    ? [...projects, ...projects.slice(0, VISIBLE_PROJECTS)]
+    ? [...projects, ...projects.slice(0, visibleProjects)]
     : projects;
 
   function finishSlideTransition(event: TransitionEvent<HTMLDivElement>) {
@@ -77,7 +86,7 @@ export function FeaturedProjectsCarousel({
         <div
           className="featured-carousel__track"
           style={{
-            width: `${(carouselProjects.length / VISIBLE_PROJECTS) * 100}%`,
+            width: `${(carouselProjects.length / visibleProjects) * 100}%`,
             transform: `translateX(-${slide * (100 / carouselProjects.length)}%)`,
             transition: transitionEnabled ? undefined : "none",
           }}
@@ -95,14 +104,23 @@ export function FeaturedProjectsCarousel({
                 className="project-card"
                 tabIndex={slideIndex === slide ? undefined : -1}
               >
-                <Image src={project.imageUrl} alt={project.imageAlt} width={640} height={400} />
+                <Image
+                  src={project.imageUrl}
+                  alt={project.imageAlt}
+                  width={640}
+                  height={400}
+                />
                 <h3>{project.title}</h3>
-                {project.subtitle && <p className="project-card-subtitle">{project.subtitle}</p>}
+                {project.subtitle && (
+                  <p className="project-card-subtitle">{project.subtitle}</p>
+                )}
                 <p>{project.description}</p>
                 {project.techStack.length > 0 && (
                   <ul className="project-card-tech" aria-label="Tech stack">
                     {project.techStack.map((technology) => (
-                      <li key={technology.id} title={technology.name}>{technology.name}</li>
+                      <li key={technology.id} title={technology.name}>
+                        {technology.name}
+                      </li>
                     ))}
                   </ul>
                 )}

@@ -2371,12 +2371,10 @@ a.resume:hover {
   display: none;
 }
 .contact-reveal:not(.is-hidden):not(.is-leaving) {
-  animation: contact-rocket-fly-in 460ms cubic-bezier(0.2, 0.85, 0.3, 1)
-    both;
+  animation: contact-rocket-fly-in 460ms cubic-bezier(0.2, 0.85, 0.3, 1) both;
 }
 .contact-reveal.is-returning {
-  animation: contact-rocket-fly-in 520ms cubic-bezier(0.2, 0.85, 0.3, 1)
-    both;
+  animation: contact-rocket-fly-in 520ms cubic-bezier(0.2, 0.85, 0.3, 1) both;
 }
 @keyframes contact-rocket-fly-in {
   0% {
@@ -2534,6 +2532,12 @@ a.resume:hover {
   transform: translate(-50%, 0) translate(-96px, 53px) rotate(4deg) scale(1.04);
 }
 @media (max-width: 767px) {
+  .section.skills-section::before,
+  .section.skills-section::after {
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
   .contact-reveal {
     right: 1rem;
     bottom: 1rem;
@@ -4137,6 +4141,30 @@ body:has(.contact-dialog[open]) {
   }
 }
 @media (max-width: 767px) {
+  .hero > *,
+  .section > *,
+  .footer-main > * {
+    min-width: 0;
+  }
+  .hero h1,
+  .section-heading h2,
+  .page-shell h1,
+  .project-card h3 {
+    overflow-wrap: anywhere;
+  }
+  .contact-dialog input,
+  .contact-dialog textarea {
+    font-size: 1rem;
+  }
+  .contact-reveal {
+    right: max(1rem, env(safe-area-inset-right));
+    bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
   .navbar {
     padding: 0.7rem 1rem;
   }
@@ -4238,6 +4266,9 @@ body:has(.contact-dialog[open]) {
     inset: 0;
     background: rgba(0, 0, 0, 0.62);
     padding: 5rem 1rem 1rem;
+    height: 100dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   .mobile-menu {
     margin-left: auto;
@@ -4274,6 +4305,13 @@ body:has(.contact-dialog[open]) {
   }
 }
 @media (max-width: 420px) {
+  .technology-groups.technology-pyramids {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .technology-pyramids .tech-pyramid-stage {
+    --pyramid-size: 15rem;
+    --pyramid-radius: 5rem;
+  }
   .brand strong {
     display: none;
   }
