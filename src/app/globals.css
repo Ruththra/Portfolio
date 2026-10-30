@@ -2697,7 +2697,7 @@ a.resume:hover {
 }
 .scroll-cue:hover {
   background: rgba(35, 139, 255, 0.1);
-  filter: drop-shadow(0 0 13px rgba(53, 212, 255, 0.9));
+  filter: none;
 }
 .scroll-cue-icons {
   display: grid;
