@@ -1,14 +1,6 @@
-import {
-  ArrowDown,
-  Github,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  Mouse,
-} from "lucide-react";
-import { hasUrl } from "@/lib/utils";
+import { ArrowDown, MapPin, Mouse } from "lucide-react";
 import { TypingText } from "@/components/animations/TypingText";
+import { ContactReveal } from "@/components/sections/ContactReveal";
 import { AvatarSequence } from "@/features/avatar/components/AvatarScene";
 import { getPortfolioContent } from "@/features/content/content.repository";
 import { getSelectedAvatar } from "@/features/avatar/avatar.repository";
@@ -18,12 +10,6 @@ export async function Hero() {
     getPortfolioContent(),
     getSelectedAvatar(),
   ]);
-  const socials = [
-    ["Email", content.email ? `mailto:${content.email}` : "", Mail],
-    ["LinkedIn", content.linkedin, Linkedin],
-    ["GitHub", content.github, Github],
-    ["Instagram", content.instagram, Instagram],
-  ] as const;
   return (
     <section id="home" className="hero-track">
       <div className="hero">
@@ -37,29 +23,12 @@ export async function Hero() {
               <li key={role}>{role}</li>
             ))}
           </ul>
-          <div className="socials" aria-label="Social links">
-            {socials.map(([label, url, Icon]) =>
-              hasUrl(url) ? (
-                <a
-                  key={label}
-                  href={url}
-                  aria-label={label}
-                  target={label === "Email" ? undefined : "_blank"}
-                  rel="noreferrer"
-                >
-                  <Icon aria-hidden="true" />
-                </a>
-              ) : (
-                <span
-                  key={label}
-                  aria-label={`${label} not configured`}
-                  title={`${label} not configured`}
-                >
-                  <Icon aria-hidden="true" />
-                </span>
-              ),
-            )}
-          </div>
+          <ContactReveal
+            email={content.email}
+            linkedin={content.linkedin}
+            github={content.github}
+            instagram={content.instagram}
+          />
           <div className="location">
             <MapPin aria-hidden="true" />
             <a
