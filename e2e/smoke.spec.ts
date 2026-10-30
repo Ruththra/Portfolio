@@ -77,10 +77,37 @@ test("mobile menu and invalid contact", async ({ page }) => {
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toBeHidden();
   await page.locator("#contact").scrollIntoViewIfNeeded();
+  const toggle = page.getByRole("button", { name: "Click to Contact" });
+  await expect(toggle).toHaveAttribute("aria-expanded", "false");
+  await expect(
+    page.getByRole("textbox", { name: "Name", exact: true }),
+  ).toHaveCount(0);
+  await toggle.click();
+  const contactDialog = page.getByRole("dialog", { name: "Let’s Connect" });
+  await expect(contactDialog).toBeVisible();
+  await expect(contactDialog).toHaveJSProperty("open", true);
   await page.getByRole("button", { name: "Send Message" }).click();
   await expect(
     page.getByText(/Please enter at least 2 characters/),
   ).toBeVisible();
+  await page.getByRole("textbox", { name: /^Name/ }).fill("Test Visitor");
+  await page
+    .getByRole("button", { name: "Close contact form", exact: true })
+    .click();
+  await expect(toggle).toBeFocused();
+  await expect(
+    page.getByRole("textbox", { name: "Name", exact: true }),
+  ).toHaveCount(0);
+  await toggle.click();
+  await expect(
+    page.getByRole("textbox", { name: "Name", exact: true }),
+  ).toHaveValue("Test Visitor");
+  await page.keyboard.press("Escape");
+  await expect(contactDialog).toBeHidden();
+  await expect(toggle).toBeFocused();
+  await toggle.click();
+  await page.mouse.click(2, 2);
+  await expect(contactDialog).toBeHidden();
 });
 test("reduced motion does not pin hero", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });

@@ -46,6 +46,8 @@ Management APIs are `/api/auth/login`, `/api/auth/logout`, `/api/manage/blogs`, 
 
 ### Contact flow
 
+The “Click to Contact” button opens a centered native modal dialog. Close it with the close button, Escape, or the backdrop; focus returns to the trigger and draft input is preserved. The modal scrolls on smaller screens and respects reduced-motion preferences.
+
 The request flow is `ContactForm → contactSchema → /api/contact → contact.service → Resend`. The Zod schema and discriminated response type are shared safely. Provider access and private environment values are isolated behind `server-only` modules, and the route never returns provider internals. Development still validates without sending; production reports missing delivery configuration.
 
 ## Local setup

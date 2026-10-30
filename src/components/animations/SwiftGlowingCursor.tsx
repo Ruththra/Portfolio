@@ -92,7 +92,7 @@ const createFluidTrail = (canvas: HTMLCanvasElement): FluidTrail | null => {
       vec3 blue = mix(vec3(0.035, 0.24, 0.95), vec3(0.42, 0.78, 1.0), colorShift);
       vec3 whiteBlue = mix(blue, vec3(0.86, 0.96, 1.0), 0.28);
       vec3 color = previous.rgb + whiteBlue * dye * 0.22;
-      float alpha = min(previous.a + dye * 0.2, 0.52);
+      float alpha = min(previous.a + dye * 0.32, 0.72);
       outputColor = vec4(color, alpha);
     }
   `;
@@ -307,6 +307,37 @@ export function SwiftGlowingCursor() {
     const arrow = arrowRef.current;
     const fluidCanvas = fluidCanvasRef.current;
     if (!cursor || !arrow || !fluidCanvas) return;
+
+    const cursorHost = cursor.parentElement;
+    const fluidHost = fluidCanvas.parentElement;
+    const syncCursorLayer = () => {
+      const openDialog = document.querySelector<HTMLDialogElement>(
+        "dialog[open]",
+      );
+      if (openDialog) {
+        if (fluidCanvas.parentElement !== openDialog) {
+          openDialog.append(fluidCanvas);
+        }
+        if (cursor.parentElement !== openDialog) {
+          openDialog.append(cursor);
+        }
+      } else {
+        if (fluidCanvas.parentElement !== fluidHost) {
+          fluidHost?.append(fluidCanvas);
+        }
+        if (cursor.parentElement !== cursorHost) {
+          cursorHost?.append(cursor);
+        }
+      }
+    };
+    const dialogObserver = new MutationObserver(syncCursorLayer);
+    dialogObserver.observe(document.body, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["open"],
+    });
+    syncCursorLayer();
 
     const finePointer = window.matchMedia("(pointer: fine)");
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -552,6 +583,9 @@ export function SwiftGlowingCursor() {
     configureCursor();
 
     return () => {
+      dialogObserver.disconnect();
+      fluidHost?.append(fluidCanvas);
+      cursorHost?.append(cursor);
       cleanupCursor?.();
       finePointer.removeEventListener("change", configureCursor);
       reducedMotion.removeEventListener("change", configureCursor);
