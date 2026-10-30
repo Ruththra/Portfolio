@@ -22,10 +22,7 @@ const mono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: siteConfig.siteUrl ? new URL(siteConfig.siteUrl) : undefined,
-  title: {
-    default: `${siteConfig.brandName} — Full-Stack Developer`,
-    template: `%s · ${siteConfig.brandName}`,
-  },
+  title: siteConfig.brandName,
   description: siteConfig.seoDescription,
   openGraph: {
     title: siteConfig.fullName,
